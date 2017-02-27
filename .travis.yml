@@ -17,3 +17,6 @@ install:
 script:
   - cd tests
   - nosetests
+
+after_success:
+  - coveralls

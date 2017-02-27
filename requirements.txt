@@ -1,4 +1,6 @@
 coverage==4.3.4
+coveralls==1.1
+docopt==0.6.2
 enum34==1.1.6
 future==0.16.0
 instrumentkit==0.3.1
@@ -10,4 +12,4 @@ python-vxi11==0.9
 pyusb==1.0.0
 PyYAML==3.12
 quantities==0+unknown
-wheel==0.24.0
+requests==2.13.0
