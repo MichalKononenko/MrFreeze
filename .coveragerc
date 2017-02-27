@@ -1,6 +1,8 @@
 [run]
 omit =
-    */tests*
+    */python?.?/*
+    */site-packages/nose/*
+    *__init__*
 
 [report]
 exclude_lines =
