@@ -1,13 +1,11 @@
 [run]
 omit =
-    */python?.?/*
-    */lib-python/?.?/*.py
-    */lib_pypy/_*.py
-    */site-packages/ordereddict.py
-    */site-packages/nose/*
-    */unittest2/*
+    */tests*
 
 [report]
 exclude_lines =
     pragma: no cover
-raise NotImplementedError
+    def __repr__
+    raise NotImplementedError
+    if __name__ == .__main__.:
+def parse_args
