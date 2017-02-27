@@ -10,7 +10,8 @@ Welcome to Mr. Freeze's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-      api
+   api
+   tests
 
 Indices and tables
 ==================
