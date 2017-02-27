@@ -13,4 +13,7 @@ class TestContinuousIntegration(unittest.TestCase):
     expectedAnswer = 2
 
     def test_add_one(self):
+        """
+        Tests that the method works
+        """
         self.assertEqual(self.expectedAnswer, add_one(self.numberToAdd))
