@@ -11,5 +11,4 @@ python-usbtmc==0.8
 python-vxi11==0.9
 pyusb==1.0.0
 PyYAML==3.12
-quantities==0+unknown
 requests==2.13.0
