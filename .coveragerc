@@ -1,5 +1,13 @@
-[report]
+[run]
 omit =
     */python?.?/*
+    */lib-python/?.?/*.py
+    */lib_pypy/_*.py
+    */site-packages/ordereddict.py
     */site-packages/nose/*
-    *__init__*
+    */unittest2/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    raise NotImplementedError
