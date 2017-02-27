@@ -1,0 +1,22 @@
+sudo: false
+
+language: python
+
+cache: pip
+
+python:
+  - "2.7"
+  - "3.5"
+
+notifications:
+  email: false
+
+install:
+  - pip install -r requirements.txt
+
+script:
+  - cd tests
+  - nosetests
+
+after_success:
+  - coveralls
