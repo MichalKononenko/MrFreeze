@@ -19,10 +19,10 @@ class TestParseResponse(TestCryomagneticsLM510):
     Contains unit tests for the response parser
     """
     test_parameters = (
-        ("15.0 CM", 15.0 * pq.cm),
-        ("25.3 IN", 25.3 * pq.inch),
+        ("15.0 cm", 15.0 * pq.cm),
+        ("25.3 in", 25.3 * pq.inch),
         ("123.7 %", 123.7 * pq.percent),
-        ("4.9 PERCENT", 4.9 * pq.percent)
+        ("4.9 percent", 4.9 * pq.percent)
     )
 
     def test_parser(self):
@@ -32,7 +32,11 @@ class TestParseResponse(TestCryomagneticsLM510):
         for parameter in self.test_parameters:
             self._run_test(parameter)
 
-    def _run_test(self, parameter):
+    def _run_test(self, parameter: tuple):
+        """
+
+        :param parameter: The parameter for which the test is to be run
+        """
         self.assertEqual(
             parameter[1],
             CryomagneticsLM510.parse_response(parameter[0])
@@ -54,7 +58,11 @@ class TestParseQuery(TestCryomagneticsLM510):
         for parameter in self.test_parameters:
             self._run_test(parameter)
 
-    def _run_test(self, parameter):
+    def _run_test(self, parameter: tuple):
+        """
+
+        :param parameter: The parameter for which the test is to be run
+        """
         self.assertEqual(
             parameter[2],
             CryomagneticsLM510.parse_query(

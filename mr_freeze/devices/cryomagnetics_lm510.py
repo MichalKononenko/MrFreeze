@@ -26,9 +26,9 @@ class CryomagneticsLM510(_Instrument):
 
     UNITS = {
         "cm": pq.cm,
-        "IN": pq.inch,
+        "in": pq.inch,
         "%": pq.percent,
-        "PERCENT": pq.percent
+        "percent": pq.percent
     }
 
     def query(self, cmd, size=-1):
@@ -116,7 +116,7 @@ class CryomagneticsLM510(_Instrument):
         log.debug("Query parser received command %s and response %s",
                   command, response)
 
-        echoed_command = re.search("^.*(?=\r\n)", response)
+        echoed_command = re.search("^.*\r\n", response)
         response_from_device = re.search("(?<=\r\n).*$", response)
 
         log.debug("Query parser parsed echoed command %s and response %s",
