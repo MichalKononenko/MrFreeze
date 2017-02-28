@@ -6,7 +6,6 @@ import unittest.mock as mock
 from concurrent.futures import Executor
 from mr_freeze.devices.lakeshore_475 import Lakeshore475
 from mr_freeze.tasks.report_magnetic_field import ReportMagneticField
-from typing import Callable
 
 
 class TestReportMagneticField(unittest.TestCase):
