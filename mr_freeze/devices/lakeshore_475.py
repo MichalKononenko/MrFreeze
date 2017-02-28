@@ -14,15 +14,15 @@ class Lakeshore475(object):
     _managed_instance = None
 
     @property
-    def portName(self) -> str:
+    def port_name(self) -> str:
         """
 
         :return: The port to which this magnetometer will be attached
         """
         return self._port
 
-    @portName.setter
-    def portName(self, new_port_name: str):
+    @port_name.setter
+    def port_name(self, new_port_name: str):
         """
 
         :param new_port_name: The new port
@@ -56,6 +56,6 @@ class Lakeshore475(object):
         """
         if self._managed_instance is None:
             self._managed_instance = _Lakeshore475.open_gpibusb(
-                port=self.portName, gpib_address=self.address)
+                port=self.port_name, gpib_address=self.address)
 
         return self._managed_instance
