@@ -5,7 +5,8 @@ language: python
 cache: pip
 
 python:
-  - "2.7"
+  - "3.2"
+  - "3.4"
   - "3.5"
 
 notifications:

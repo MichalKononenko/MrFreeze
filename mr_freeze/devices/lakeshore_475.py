@@ -1,19 +1,20 @@
 """
 Contains methods for working with the Lakeshore 475 Gaussmeter
 """
+from typing import Optional
 from instruments.lakeshore import Lakeshore475 as _Lakeshore475
 
 
-class LakeShore475GaussMeter(object):
+class Lakeshore475(object):
     """
-    Contains an adapter layer for IK's Lakeshore 475 implementation
+    Adapter layer for IK's Lakeshore 475 implementation
     """
     _port = '/dev/ttyUSB0'
     _address = 12
     _managed_instance = None
 
     @property
-    def portName(self):
+    def portName(self) -> str:
         """
 
         :return: The port to which this magnetometer will be attached
@@ -21,31 +22,37 @@ class LakeShore475GaussMeter(object):
         return self._port
 
     @portName.setter
-    def portName(self, newPortName):
+    def portName(self, new_port_name: str):
         """
 
-        :param newPortName: The new port
+        :param new_port_name: The new port
         :return:
         """
-        self._port = newPortName
+        self._port = new_port_name
 
     @property
-    def address(self):
+    def address(self) -> int:
+        """
+
+        :return: The address
+        """
         return self._address
 
     @address.setter
-    def address(self, new_address):
+    def address(self, new_address: int):
+        """
+
+        :param new_address: The desired address
+        :return:
+        """
         self._address = new_address
 
     @property
-    def _communicator(self):
-        return
-
-    @property
-    def magnetometer(self):
+    def magnetometer(self) -> Optional[_Lakeshore475]:
         """
 
-        :return: The instance of the magnetometer that this adapter manages
+        :return: The instance of the magnetometer that this adapter manages, or
+            None if there is no instance.
         """
         if self._managed_instance is None:
             self._managed_instance = _Lakeshore475.open_gpibusb(

@@ -1,15 +1,16 @@
+#!/usr/bin/env python
 """
 Contains the execution script
 """
-from mr_freeze.control_scripts.field_logging import FieldLogger
-from mr_freeze.devices.lakeshore_475 import LakeShore475GaussMeter
-from threading import Thread
+from concurrent.futures import ThreadPoolExecutor
+from mr_freeze.devices.lakeshore_475 import Lakeshore475
+from mr_freeze.tasks.report_magnetic_field import ReportMagneticField
 
-meter = LakeShore475GaussMeter()
+meter = Lakeshore475()
 meter.portName = '/dev/ttyUSB0'
 
-fieldLogger = FieldLogger(meter.magnetometer)
+executor = ThreadPoolExecutor(1)
 
-pollingThread = Thread(target=fieldLogger.__call__)
+b_task = ReportMagneticField(meter)
 
-pollingThread.start()
+print("B = %s" % b_task(executor).result())
