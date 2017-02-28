@@ -1,0 +1,3 @@
+"""
+Contains application unit tests
+"""
