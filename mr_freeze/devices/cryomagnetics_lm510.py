@@ -6,7 +6,11 @@ from threading import Lock
 from instruments.abstract_instruments import Instrument as _Instrument
 import quantities as pq
 import re
+import logging
 from time import sleep
+
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
 
 class CryomagneticsLM510(_Instrument):
@@ -16,22 +20,35 @@ class CryomagneticsLM510(_Instrument):
     CHANNELS = {1, 2}
 
     channel_measurement_lock = Lock()  # type: Lock
+    querying_lock = Lock()  # type: Lock
 
     measurement_timeout = 1
 
     UNITS = {
-        "CM": pq.cm,
+        "cm": pq.cm,
         "IN": pq.inch,
         "%": pq.percent,
         "PERCENT": pq.percent
     }
 
+    def query(self, cmd, size=-1):
+        self.querying_lock.acquire()
+        self.terminator = '\r\n'
+        self.write(cmd + self.terminator)
+        self.terminator = '\r\n\n'
+
+        response = self.read(size=size)
+        log.debug("received response %s", response)
+        self.querying_lock.release()
+
+        return self.parse_query(cmd, response)
+
     @property
-    def channel(self):
+    def default_channel(self):
         return int(self.query("CHAN?"))
 
-    @channel.setter
-    def channel(self, channel):
+    @default_channel.setter
+    def default_channel(self, channel):
         if channel not in self.CHANNELS:
             raise ValueError("Attempted to set channel to %s. Channel must "
                              "be an integer of either 1 or 2", channel)
@@ -61,6 +78,9 @@ class CryomagneticsLM510(_Instrument):
     def channel_2_measurement(self, measurer=None):
         return self._measurement(2, measurer)
 
+    def reset(self):
+        self.query("*RST")
+
     def _measurement(self, channel_number, measurer=None):
         if measurer is None:
             measurer = self._ChannelMeasurement(channel_number, self)
@@ -77,7 +97,43 @@ class CryomagneticsLM510(_Instrument):
         value = float(value_match.group(0))
         unit = CryomagneticsLM510.UNITS[unit_match.group(0)]
 
-        return value * unit
+        return_value = value * unit
+
+        log.debug("parsed quantity %s from response %s", return_value,
+                  response)
+        return return_value
+
+    @staticmethod
+    def parse_query(command, response):
+        """
+        The Cryomagnetics LM-510 is weird when it comes to communication.
+        The system echoes the command sent, followed by a return, followed
+        by a newline. Fix this
+        :param command: The command sent to the device
+        :param response: The response returned by the device
+        :return: The actual response
+        """
+        log.debug("Query parser received command %s and response %s",
+                  command, response)
+
+        echoed_command = re.search("^.*(?=\r\n)", response)
+        response_from_device = re.search("(?<=\r\n).*$", response)
+
+        log.debug("Query parser parsed echoed command %s and response %s",
+                  echoed_command.group(0), response_from_device.group(0))
+
+        if command != echoed_command.group(0):
+            raise RuntimeError("Level meter did not receive echo of command "
+                               "as expected")
+
+        data_to_return = response_from_device.group(0)
+
+        if data_to_return is None:
+            raise RuntimeError(
+                "I/O with Cryomagnetics Level meter did not return a response"
+            )
+
+        return data_to_return
 
     class _ChannelMeasurement(object):
         """
@@ -104,9 +160,9 @@ class CryomagneticsLM510(_Instrument):
             :return: The string returned from the level measurement
             """
             self.instrument.channel_measurement_lock.acquire()
-            self.instrument.query("MEAS %d", self.channel)
             sleep(self.instrument.measurement_timeout)
 
-            response = self.instrument.query("MEAS? %d", self.channel)
+            response = self.instrument.query("MEAS? %d" % self.channel)
 
+            self.instrument.channel_measurement_lock.release()
             return response
