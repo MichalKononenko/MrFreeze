@@ -16,6 +16,9 @@ class TestAdapter(unittest.TestCase):
         self.instrument = CryomagneticsLM510()
         self.instrument._constructor = self.constructor
 
+    def tearDown(self):
+        self.constructor.reset_mock()
+
 
 class TestPortName(TestAdapter):
     port = 'portName'

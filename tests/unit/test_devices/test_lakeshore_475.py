@@ -13,6 +13,9 @@ class TestLakeshore475(unittest.TestCase):
         self.instrument = Lakeshore475()
         self.instrument._constructor = self.constructor
 
+    def tearDown(self):
+        self.constructor.reset_mock()
+
 
 class TestPortName(TestLakeshore475):
     port = 'portName'
