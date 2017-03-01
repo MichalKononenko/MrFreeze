@@ -12,17 +12,18 @@ class Lakeshore475(object):
     _port = '/dev/ttyUSB0'
     _address = 12
     _managed_instance = None
+    _constructor = _Lakeshore475
 
     @property
-    def portName(self) -> str:
+    def port_name(self) -> str:
         """
 
         :return: The port to which this magnetometer will be attached
         """
         return self._port
 
-    @portName.setter
-    def portName(self, new_port_name: str):
+    @port_name.setter
+    def port_name(self, new_port_name: str):
         """
 
         :param new_port_name: The new port
@@ -55,7 +56,7 @@ class Lakeshore475(object):
             None if there is no instance.
         """
         if self._managed_instance is None:
-            self._managed_instance = _Lakeshore475.open_gpibusb(
-                port=self.portName, gpib_address=self.address)
+            self._managed_instance = self._constructor.open_gpibusb(
+                port=self.port_name, gpib_address=self.address)
 
         return self._managed_instance

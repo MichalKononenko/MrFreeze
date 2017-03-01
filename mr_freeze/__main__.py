@@ -7,7 +7,7 @@ from mr_freeze.devices.lakeshore_475 import Lakeshore475
 from mr_freeze.tasks.report_magnetic_field import ReportMagneticField
 
 meter = Lakeshore475()
-meter.portName = '/dev/ttyUSB0'
+meter.port_name = '/dev/ttyUSB0'
 
 executor = ThreadPoolExecutor(1)
 
