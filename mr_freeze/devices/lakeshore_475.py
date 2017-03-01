@@ -12,6 +12,7 @@ class Lakeshore475(object):
     _port = '/dev/ttyUSB0'
     _address = 12
     _managed_instance = None
+    _constructor = _Lakeshore475
 
     @property
     def port_name(self) -> str:
@@ -55,7 +56,7 @@ class Lakeshore475(object):
             None if there is no instance.
         """
         if self._managed_instance is None:
-            self._managed_instance = _Lakeshore475.open_gpibusb(
+            self._managed_instance = self._constructor.open_gpibusb(
                 port=self.port_name, gpib_address=self.address)
 
         return self._managed_instance

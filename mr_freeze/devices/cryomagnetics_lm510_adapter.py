@@ -16,6 +16,7 @@ class CryomagneticsLM510(object):
     _baud_rate = 9600
     _timeout_in_seconds = 1
     _managed_instance = None
+    _constructor = _CryomagneticsLM510
 
     @property
     def port_name(self) -> str:
@@ -48,7 +49,7 @@ class CryomagneticsLM510(object):
         :return:
         """
         if self._managed_instance is None:
-            self._managed_instance = _CryomagneticsLM510.open_serial(
+            self._managed_instance = self._constructor.open_serial(
                 port=self.port_name, baud=self.baud_rate
             )
         return self._managed_instance
