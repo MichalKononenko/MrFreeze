@@ -12,6 +12,8 @@ class ReportLiquidNitrogenLevel(ReportVariableTask):
     """
     The task to run
     """
+    title = "Liquid Nitrogen Level"
+
     _minimum_time_between_samples = 0.3
 
     def __init__(self, gauge: CryomagneticsLM510, ln2_channel=2):
@@ -23,10 +25,6 @@ class ReportLiquidNitrogenLevel(ReportVariableTask):
         """
         self.gauge = gauge
         self.ln_2_channel = ln2_channel
-
-    @property
-    def title(self):
-        return "Liquid Nitrogen Level"
 
     @property
     def _ln2_level(self) -> Quantity:

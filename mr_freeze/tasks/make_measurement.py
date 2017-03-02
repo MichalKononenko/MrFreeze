@@ -28,13 +28,13 @@ class MakeMeasurement(AbstractTask):
         :param executor: The executor to use for making the measurement
         :return:
         """
-        pressure = self.ln2_task(executor)  # type: Future
+        ln2_level = self.ln2_task(executor)  # type: Future
         current = self.current_task(executor)  # type: Future
         magnetic_field = self.magnetic_field_task(executor)  # type: Future
 
         values_to_write = (
             float(value.result(self.timeout))
-            for value in {pressure, current, magnetic_field}
+            for value in {ln2_level, current, magnetic_field}
         )
         write_values_task = WriteCSVValues(
             self.csv_file, values_to_write
