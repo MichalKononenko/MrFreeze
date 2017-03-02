@@ -51,7 +51,7 @@ class TestQuery(TestAbstractCryomagneticsDevice):
     command = "enter"
     expected_response = "data"
 
-    data_to_read = "%s\r\n%s\r\n\n" % (
+    data_to_read = "%s\r\n%s" % (
         command, expected_response
     )
 
@@ -74,7 +74,7 @@ class TestQuery(TestAbstractCryomagneticsDevice):
 
 class TestParseQuery(TestAbstractCryomagneticsDevice):
     command = "Testing"
-    data_format = "%s\r\n%s\r\n\n"
+    data_format = "%s\r\n%s"
 
     def test_command_not_echoed_command(self):
         bad_echo = "String1"
@@ -86,7 +86,7 @@ class TestParseQuery(TestAbstractCryomagneticsDevice):
             self.device.parse_query(self.command, data_to_return)
 
     def test_command_bad_response(self):
-        data_to_read = "%s\r\n%s\n" % (self.command, "response")
+        data_to_read = "%s%s" % (self.command, "response")
 
         with self.assertRaises(RuntimeError):
             self.device.parse_query(self.command, data_to_read)

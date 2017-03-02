@@ -36,7 +36,7 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
 
         echoed_command = re.search("^.*(?=\r\n)", response)
         response_from_device = re.search(
-            "(?<=\r\n).*(?=\r\n\n$)",
+            "(?<=\r\n).*$",
             response
         )
 

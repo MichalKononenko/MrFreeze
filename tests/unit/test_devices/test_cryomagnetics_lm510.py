@@ -41,31 +41,3 @@ class TestParseResponse(TestCryomagneticsLM510):
             parameter[1],
             CryomagneticsLM510.parse_response(parameter[0])
         )
-
-
-class TestParseQuery(TestCryomagneticsLM510):
-    """
-    Contains unit tests for the query parser
-    """
-    test_parameters = (
-        ("*IDN?\r\n", "*IDN?\r\nData", "Data"),
-    )
-
-    def test_parser(self):
-        """
-        Loop through the parameters and ensure they pass
-        """
-        for parameter in self.test_parameters:
-            self._run_test(parameter)
-
-    def _run_test(self, parameter: tuple):
-        """
-
-        :param parameter: The parameter for which the test is to be run
-        """
-        self.assertEqual(
-            parameter[2],
-            CryomagneticsLM510.parse_query(
-                parameter[0], parameter[1]
-            )
-        )
