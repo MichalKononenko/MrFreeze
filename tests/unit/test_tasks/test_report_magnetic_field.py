@@ -38,16 +38,6 @@ class TestCall(TestReportMagneticField):
     """
     Contains tests to evaluate what happens when the task is called
     """
-    def test_call(self):
-        """
-        Tests that calling the task with an executor results in the task
-        being submitted to the executor
-        """
-        self.task(self.executor)
-        self.assertTrue(
-            self.executor.submit.called
-        )
-        self.assertTrue(hasattr(self._task_function, '__call__'))
 
     def test_run_task(self):
         """
