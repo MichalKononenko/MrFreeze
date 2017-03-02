@@ -2,6 +2,7 @@
 Measures the current from the Cryomagnetics 4G power supply
 """
 from time import sleep
+from concurrent.futures import Executor
 from quantities import Quantity
 from mr_freeze.devices.cryomagnetics_4g_adapter import Cryomagnetics4G
 from mr_freeze.tasks.report_variable_task import ReportVariableTask
@@ -22,8 +23,7 @@ class ReportCurrent(ReportVariableTask):
     def title(self):
         return "Current"
 
-
-    def task(self) -> Quantity:
+    def task(self, executor: Executor) -> Quantity:
         """
 
         :return: The measured current

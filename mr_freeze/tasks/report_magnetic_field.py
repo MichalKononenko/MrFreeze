@@ -2,6 +2,7 @@
 Describes how to report the magnetic field
 """
 from time import sleep
+from concurrent.futures import Executor
 from mr_freeze.devices.lakeshore_475 import Lakeshore475
 from mr_freeze.tasks.report_variable_task import ReportVariableTask
 
@@ -39,7 +40,7 @@ class ReportMagneticField(ReportVariableTask):
         """
         sleep(self._minimum_time_between_samples)
 
-    def task(self) -> float:
+    def task(self, executor: Executor) -> float:
         """
 
         :return: The measured pressure

@@ -44,7 +44,7 @@ class TestCall(TestReportMagneticField):
         Tests that the task runs correctly
         """
         self.task(self.executor)
-        field_strength = self._task_function()
+        field_strength = self._task_function(self.executor)
         self.assertEqual(self.gauge.field, field_strength)
 
     @property
