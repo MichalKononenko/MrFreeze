@@ -2,12 +2,12 @@
 Describes a task to report the level of liquid nitrogen in the system
 """
 from mr_freeze.devices.cryomagnetics_lm510_adapter import CryomagneticsLM510
-from concurrent.futures import Executor, Future
 from time import sleep
 from quantities import Quantity
+from mr_freeze.tasks.abstract_task import AbstractTask
 
 
-class ReportLiquidNitrogenLevel(object):
+class ReportLiquidNitrogenLevel(AbstractTask):
     """
     The task to run
     """
@@ -22,14 +22,6 @@ class ReportLiquidNitrogenLevel(object):
         """
         self.gauge = gauge
         self.ln_2_channel = ln2_channel
-
-    def __call__(self, executor: Executor) -> Future:
-        """
-
-        :param executor: The executor that will run this task
-        :return: A wrapper around the task that will return the result
-        """
-        return executor.submit(self._task)
 
     @property
     def _ln2_level(self) -> Quantity:
@@ -52,7 +44,7 @@ class ReportLiquidNitrogenLevel(object):
         """
         sleep(self._minimum_time_between_samples)
 
-    def _task(self) -> Quantity:
+    def task(self) -> Quantity:
         """
 
         :return: The measured liquid nitrogen level

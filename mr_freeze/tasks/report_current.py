@@ -3,11 +3,11 @@ Measures the current from the Cryomagnetics 4G power supply
 """
 from time import sleep
 from quantities import Quantity
-from concurrent.futures import Executor, Future
 from mr_freeze.devices.cryomagnetics_4g_adapter import Cryomagnetics4G
+from mr_freeze.tasks.abstract_task import AbstractTask
 
 
-class ReportCurrent(object):
+class ReportCurrent(AbstractTask):
     """
     Reports the current from the Cryomagnetics 4G supply
     """
@@ -18,15 +18,7 @@ class ReportCurrent(object):
         """
         self.gauge = gauge
 
-    def __call__(self, executor: Executor) -> Future:
-        """
-
-        :param executor: The executor to which the task is to be submitted
-        :return:
-        """
-        return executor.submit(self._task)
-
-    def _task(self) -> Quantity:
+    def task(self) -> Quantity:
         """
 
         :return: The measured current

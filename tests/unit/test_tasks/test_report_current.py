@@ -19,13 +19,6 @@ class TestInit(TestReportCurrent):
 
 
 class TestCall(TestReportCurrent):
-    def test_call(self):
-        self.task(self.executor)
-        self.assertTrue(
-            self.executor.submit.called
-        )
-        self.assertTrue(hasattr(self._task_function, '__call__'))
-
     def test_runtask(self):
         self.task(self.executor)
         current = self._task_function()

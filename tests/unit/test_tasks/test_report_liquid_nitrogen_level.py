@@ -42,16 +42,6 @@ class TestCall(TestReportLiquidNitrogenLevel):
     """
     Contains unit tests for :meth:`__call__`
     """
-    def test_call(self):
-        """
-        Tests that a callable has been submitted to the executor
-        """
-        self.task(self.executor)
-        self.assertTrue(
-            self.executor.submit.called
-        )
-        self.assertTrue(hasattr(self._task_function, '__call__'))
-
     def test_run_task(self):
         """
         Run the task and assert it works correctly
