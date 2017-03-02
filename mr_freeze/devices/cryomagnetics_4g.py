@@ -42,6 +42,19 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
 
         return self.parse_current_response(self.query("IOUT?"))
 
+    def query(self, cmd, size=-1):
+        self._querying_lock.acquire()
+        self.terminator = '\r'
+        self.write(cmd + self.terminator)
+        self.terminator = '\r\n'
+
+        response = self.read(size=100)
+        log.debug("received response %s", response)
+        self._querying_lock.release()
+
+        return self.parse_query(cmd, response)
+
+
     @staticmethod
     def parse_current_response(response):
         value_match = re.search("^(\d|\.)*(?=\s)", response)
@@ -55,3 +68,36 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
         log.debug("parsed quantity %s from response %s", return_value, unit)
 
         return return_value
+
+    @staticmethod
+    def parse_query(command, response):
+        log.debug("Query parser received command %s and response %s",
+                  command, response)
+
+        echoed_command = re.search("^.*(?=\r\n)", response)
+        response_from_device = re.search(
+            "(?<=\r\n).*$",
+            response
+        )
+
+        log.debug(
+            "Query parser parsed echoed command %s and response %s",
+            echoed_command, response_from_device
+        )
+
+        if (echoed_command is None) or (response_from_device is None):
+            raise RuntimeError(
+                "Cryomagnetics query parser did not match search string"
+            )
+
+        if command != echoed_command.group(0):
+            raise RuntimeError(
+                "Cryomagnetics query parser did not find echoed command"
+            )
+
+        if response_from_device.group(0) is None:
+            raise RuntimeError(
+                "I/O with Cryomagnetics instrument did not return a response"
+            )
+
+        return response_from_device.group(0)
