@@ -47,7 +47,7 @@ class TestCall(TestReportLiquidNitrogenLevel):
         Run the task and assert it works correctly
         """
         self.task(self.executor)
-        ln2_level = self._task_function()
+        ln2_level = self._task_function(self.executor)
         self.assertEqual(
             self.gauge.channel_2_measurement, ln2_level
         )
@@ -59,7 +59,7 @@ class TestCall(TestReportLiquidNitrogenLevel):
         """
         self.task.ln_2_channel = 1
         self.task(self.executor)
-        ln2_level = self._task_function()
+        ln2_level = self._task_function(self.executor)
         self.assertEqual(
             self.gauge.channel_1_measurement, ln2_level
         )
@@ -73,7 +73,7 @@ class TestCall(TestReportLiquidNitrogenLevel):
         self.task(self.executor)
 
         with self.assertRaises(RuntimeError):
-            self._task_function()
+            self._task_function(self.executor)
 
     @property
     def _task_function(self):

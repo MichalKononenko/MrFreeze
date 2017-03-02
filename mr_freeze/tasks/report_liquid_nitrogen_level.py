@@ -3,6 +3,7 @@ Describes a task to report the level of liquid nitrogen in the system
 """
 from mr_freeze.devices.cryomagnetics_lm510_adapter import CryomagneticsLM510
 from time import sleep
+from concurrent.futures import Executor
 from quantities import Quantity
 from mr_freeze.tasks.report_variable_task import ReportVariableTask
 
@@ -48,7 +49,7 @@ class ReportLiquidNitrogenLevel(ReportVariableTask):
         """
         sleep(self._minimum_time_between_samples)
 
-    def task(self) -> Quantity:
+    def task(self, executor: Executor) -> Quantity:
         """
 
         :return: The measured liquid nitrogen level

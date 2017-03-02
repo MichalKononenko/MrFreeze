@@ -21,7 +21,7 @@ class TestInit(TestReportCurrent):
 class TestCall(TestReportCurrent):
     def test_runtask(self):
         self.task(self.executor)
-        current = self._task_function()
+        current = self._task_function(self.executor)
         self.assertEqual(self.gauge.current, current)
 
     @property
