@@ -52,6 +52,29 @@ class TestCall(TestReportLiquidNitrogenLevel):
             self.gauge.channel_2_measurement, ln2_level
         )
 
+    def test_measure_channel_1(self):
+        """
+        Tests that the channel 1 measurement is returned if the channel is
+        set to 1 for LN2
+        """
+        self.task.ln_2_channel = 1
+        self.task(self.executor)
+        ln2_level = self._task_function()
+        self.assertEqual(
+            self.gauge.channel_1_measurement, ln2_level
+        )
+
+    def test_measure_error(self):
+        """
+        Tests that a :class:`RuntimeError` is thrown if the LN 2 channel is
+        not 1 or 2
+        """
+        self.task.ln_2_channel = 3
+        self.task(self.executor)
+
+        with self.assertRaises(RuntimeError):
+            self._task_function()
+
     @property
     def _task_function(self):
         """
