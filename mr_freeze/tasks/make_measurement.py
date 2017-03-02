@@ -1,5 +1,4 @@
 from concurrent.futures import Executor, Future
-from quantities import Quantity
 from mr_freeze.tasks.abstract_task import AbstractTask
 from mr_freeze.tasks.report_current import ReportCurrent
 from mr_freeze.tasks.report_magnetic_field import ReportMagneticField
@@ -12,7 +11,6 @@ class MakeMeasurement(AbstractTask):
     """
     Run a single measurement, and write the results
     """
-    _executor = None
 
     def __init__(self, ln2_gauge, current_gauge, gaussmeter,
                  csv_file, timeout=10):
@@ -23,25 +21,22 @@ class MakeMeasurement(AbstractTask):
 
         self.timeout = timeout
 
-    def __call__(self, executor: Executor) -> Future:
-        self._executor = executor
-        return executor.submit(self.task)
+    def task(self, executor: Executor):
+        """
+        Measure the variables and write them to the CSV file
 
-    def task(self):
-        pressure = self.ln2_task(
-            self._executor
-        ).result(self.timeout)  # type: Quantity
-        current = self.current_task(
-            self._executor
-        ).result(self.timeout)  # type: Quantity
-        magnetic_field = self.magnetic_field_task(
-            self._executor
-        ).result(self.timeout)  # type: Quantity
+        :param executor: The executor to use for making the measurement
+        :return:
+        """
+        pressure = self.ln2_task(executor)  # type: Future
+        current = self.current_task(executor)  # type: Future
+        magnetic_field = self.magnetic_field_task(executor)  # type: Future
 
         values_to_write = (
-            float(value) for value in {pressure, current, magnetic_field}
+            float(value.result(self.timeout))
+            for value in {pressure, current, magnetic_field}
         )
         write_values_task = WriteCSVValues(
             self.csv_file, values_to_write
         )
-        write_values_task(self._executor).result(self.timeout)
+        write_values_task(executor).result(self.timeout)
