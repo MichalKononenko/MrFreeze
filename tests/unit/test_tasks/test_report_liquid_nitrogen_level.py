@@ -59,7 +59,7 @@ class TestCall(TestReportLiquidNitrogenLevel):
         self.task(self.executor)
         ln2_level = self._task_function()
         self.assertEqual(
-            self.gauge.level_meter.channel_2_measurement, ln2_level
+            self.gauge.channel_2_measurement, ln2_level
         )
 
     @property

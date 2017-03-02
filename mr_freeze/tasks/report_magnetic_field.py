@@ -36,7 +36,7 @@ class ReportMagneticField(object):
 
         :return: The measured strength of the magnetic field
         """
-        return self.gauge.magnetometer.field
+        return self.gauge.field
 
     def _wait_for_minimum_time(self):
         """

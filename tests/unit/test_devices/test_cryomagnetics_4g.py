@@ -9,8 +9,8 @@ class TestCryomagnetics4G(unittest.TestCase):
 
 class TestParseQuery(TestCryomagnetics4G):
     test_parameters = (
-        ("87.424 a", 87.424 * pq.amps),
-        ("3240 g", 3240 * pq.gauss)
+        ("87.424A", 87.424 * pq.amps),
+        ("3240G", 3240 * pq.gauss)
     )
 
     def test_parser(self):

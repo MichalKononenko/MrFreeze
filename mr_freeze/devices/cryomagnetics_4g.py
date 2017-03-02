@@ -15,16 +15,18 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
     CHANNELS = {1, 2}
 
     UNITS = {
-        "a": pq.amp,
-        "g": pq.gauss
+        "A": pq.amp,
+        "G": pq.gauss
     }
 
     REVERSE_UNITS = {
-        pq.amp: "a",
-        pq.gauss: "g"
+        pq.amp: "A",
+        pq.gauss: "G"
     }
 
     MAXIMUM_MESSAGE_SIZE = 1000
+
+    instrument_measurement_timeout = 0.5
 
     @property
     def terminator(self):
@@ -39,7 +41,7 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
     def unit(self, unit_to_set):
         if unit_to_set not in self.UNITS.keys():
             raise ValueError("Attempted to set unit to an invalid value")
-        self.write("UNITS %s" % unit_to_set)
+        self.query("UNITS %s" % unit_to_set)
 
     @property
     def current(self):
@@ -60,8 +62,8 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
 
     @staticmethod
     def parse_current_response(response):
-        value_match = re.search("^(\d|\.)*(?=\s)", response)
-        unit_match = re.search("(?<=\s).*(?=$)", response)
+        value_match = re.search("^(\d|\.)*(?=(A|G))", response)
+        unit_match = re.search(".(?=$)", response)
 
         value = float(value_match.group(0))
         unit = Cryomagnetics4G.UNITS[unit_match.group(0)]
@@ -83,24 +85,24 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
             response
         )
 
-        log.debug(
-            "Query parser parsed echoed command %s and response %s",
-            echoed_command, response_from_device
-        )
-
-        if (echoed_command is None) or (response_from_device is None):
+        if echoed_command is None:
             raise RuntimeError(
                 "Cryomagnetics query parser did not match search string"
             )
+
+        if response_from_device is None:
+            response = ''
+        else:
+            response = response_from_device.group(0)
 
         if command != echoed_command.group(0):
             raise RuntimeError(
                 "Cryomagnetics query parser did not find echoed command"
             )
 
-        if response_from_device.group(0) is None:
-            raise RuntimeError(
-                "I/O with Cryomagnetics instrument did not return a response"
-            )
+        log.debug(
+            "Query parser parsed echoed command %s and response %s",
+            echoed_command.group(0), response
+        )
 
-        return response_from_device.group(0)
+        return response

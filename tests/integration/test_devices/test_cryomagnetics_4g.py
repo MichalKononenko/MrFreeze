@@ -3,6 +3,7 @@ import sys
 import unittest
 from mr_freeze.devices.cryomagnetics_4g import Cryomagnetics4G
 from mr_freeze.devices.cryomagnetics_4g import log as device_log
+from quantities import Quantity
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
@@ -41,3 +42,10 @@ class TestCryomagnetics4G(unittest.TestCase):
         response = self.instrument.query("*IDN?")
         self.assertIsInstance(response, str)
         self.assertNotEqual(response, "*IDN?")
+
+
+class TestCurrent(TestCryomagnetics4G):
+    def test_current(self):
+        self.assertIsInstance(
+            self.instrument.current, Quantity
+        )

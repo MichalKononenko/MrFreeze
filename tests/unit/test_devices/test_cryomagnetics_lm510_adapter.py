@@ -53,10 +53,10 @@ class TestTimeoutInSeconds(TestAdapter):
 
 class TestLevelMeter(TestAdapter):
     def test_level_meter_construction_required(self):
-        _ = self.instrument.level_meter
+        _ = self.instrument._level_meter
         self.assertTrue(self.constructor.open_serial.called)
 
     def test_level_meter_no_construction(self):
         self.instrument._managed_instance = self.constructor
-        self.assertEqual(self.constructor, self.instrument.level_meter)
+        self.assertEqual(self.constructor, self.instrument._level_meter)
         self.assertFalse(self.constructor.open_serial.called)
