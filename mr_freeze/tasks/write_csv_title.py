@@ -1,8 +1,6 @@
-import logging
+from concurrent.futures import Executor
 from mr_freeze.tasks.abstract_task import AbstractTask
 from mr_freeze.resources.csv_file import CSVFile
-
-log = logging.getLogger(__name__)
 
 
 class WriteCSVTitle(AbstractTask):
@@ -11,5 +9,5 @@ class WriteCSVTitle(AbstractTask):
     def __init__(self, csv_file: CSVFile):
         self.file = csv_file
 
-    def task(self):
+    def task(self, executor: Executor):
         self.file.write_titles()

@@ -8,7 +8,7 @@ class ConcreteTask(AbstractTask):
     """
     Describes a task that only returns 1
     """
-    def task(self) -> int:
+    def task(self, executor: Executor) -> int:
         """
 
         :return: The number ``1``
@@ -44,6 +44,6 @@ class TestCall(TestAbstractTask):
 
         self.assertTrue(self.executor.submit.called)
         self.assertEqual(
-            mock.call(self.task.task),
+            mock.call(self.task.task, self.executor),
             self.executor.submit.call_args
         )
