@@ -15,7 +15,10 @@ install:
   - pip install -r requirements.txt
 
 script:
-  - nosetests ./tests/unit --with-coverage
+  - nosetests ./tests/unit --with-coverage # Run unit tests
+
+  # This test tests the CSV writer. It should be safe to run on travis
+  - nosetests ./tests/integration/test_resources/test_csv_file.py --with-coverage
 
 after_success:
   - coveralls

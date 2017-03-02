@@ -4,10 +4,10 @@ Describes a task to report the level of liquid nitrogen in the system
 from mr_freeze.devices.cryomagnetics_lm510_adapter import CryomagneticsLM510
 from time import sleep
 from quantities import Quantity
-from mr_freeze.tasks.abstract_task import AbstractTask
+from mr_freeze.tasks.report_variable_task import ReportVariableTask
 
 
-class ReportLiquidNitrogenLevel(AbstractTask):
+class ReportLiquidNitrogenLevel(ReportVariableTask):
     """
     The task to run
     """
@@ -22,6 +22,10 @@ class ReportLiquidNitrogenLevel(AbstractTask):
         """
         self.gauge = gauge
         self.ln_2_channel = ln2_channel
+
+    @property
+    def title(self):
+        return "Liquid Nitrogen Level"
 
     @property
     def _ln2_level(self) -> Quantity:
