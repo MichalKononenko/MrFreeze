@@ -24,6 +24,12 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
         pq.gauss: "g"
     }
 
+    MAXIMUM_MESSAGE_SIZE = 1000
+
+    @property
+    def terminator(self):
+        return '\r\n'
+
     @property
     def unit(self):
         response = self.query("UNITS?")
@@ -44,16 +50,13 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
 
     def query(self, cmd, size=-1):
         self._querying_lock.acquire()
-        self.terminator = '\r'
         self.write(cmd + self.terminator)
-        self.terminator = '\r\n'
 
-        response = self.read(size=100)
+        response = self.read(size=self.MAXIMUM_MESSAGE_SIZE)
         log.debug("received response %s", response)
         self._querying_lock.release()
 
         return self.parse_query(cmd, response)
-
 
     @staticmethod
     def parse_current_response(response):
@@ -74,9 +77,9 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
         log.debug("Query parser received command %s and response %s",
                   command, response)
 
-        echoed_command = re.search("^.*(?=\r\n)", response)
+        echoed_command = re.search("^.*(?=\r\r\n)", response)
         response_from_device = re.search(
-            "(?<=\r\n).*$",
+            "(?<=\r\r\n).*(?=\r\n$)",
             response
         )
 

@@ -20,7 +20,8 @@ device_log.addHandler(ch)
 TESTING_PARAMETERS = {
     "instrument-port": "/dev/ttyUSB0",
     "baud-rate": 9600,
-    "timeout": 5
+    "reset-command": "*RST",
+    "timeout": 2
 }
 
 
