@@ -3,7 +3,8 @@ Contains an implementation of the cryomagnetics LM 510 liquid cryogen level
 monitor
 """
 from threading import Lock
-from instruments.abstract_instruments import Instrument as _Instrument
+from mr_freeze.devices.abstract_cryomagnetics_device \
+    import AbstractCryomagneticsDevice
 import quantities as pq
 import re
 import logging
@@ -13,7 +14,7 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
 
-class CryomagneticsLM510(_Instrument):
+class CryomagneticsLM510(AbstractCryomagneticsDevice):
     """
     Represents a Cryomagnetics LM-510 liquid cryogen level monitor
     """
@@ -30,18 +31,6 @@ class CryomagneticsLM510(_Instrument):
         "%": pq.percent,
         "percent": pq.percent
     }
-
-    def query(self, cmd, size=-1):
-        self.querying_lock.acquire()
-        self.terminator = '\r\n'
-        self.write(cmd + self.terminator)
-        self.terminator = '\r\n\n'
-
-        response = self.read(size=size)
-        log.debug("received response %s", response)
-        self.querying_lock.release()
-
-        return self.parse_query(cmd, response)
 
     @property
     def default_channel(self):
@@ -102,38 +91,6 @@ class CryomagneticsLM510(_Instrument):
         log.debug("parsed quantity %s from response %s", return_value,
                   response)
         return return_value
-
-    @staticmethod
-    def parse_query(command, response):
-        """
-        The Cryomagnetics LM-510 is weird when it comes to communication.
-        The system echoes the command sent, followed by a return, followed
-        by a newline. Fix this
-        :param command: The command sent to the device
-        :param response: The response returned by the device
-        :return: The actual response
-        """
-        log.debug("Query parser received command %s and response %s",
-                  command, response)
-
-        echoed_command = re.search("^.*\r\n", response)
-        response_from_device = re.search("(?<=\r\n).*$", response)
-
-        log.debug("Query parser parsed echoed command %s and response %s",
-                  echoed_command.group(0), response_from_device.group(0))
-
-        if command != echoed_command.group(0):
-            raise RuntimeError("Level meter did not receive echo of command "
-                               "as expected")
-
-        data_to_return = response_from_device.group(0)
-
-        if data_to_return is None:
-            raise RuntimeError(
-                "I/O with Cryomagnetics Level meter did not return a response"
-            )
-
-        return data_to_return
 
     class _ChannelMeasurement(object):
         """

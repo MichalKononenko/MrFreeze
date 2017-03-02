@@ -39,12 +39,12 @@ class TestAddress(TestLakeshore475):
 
 class TestMagnetometer(TestLakeshore475):
     def test_no_construction_needed(self):
-        _ = self.instrument.magnetometer
+        _ = self.instrument._magnetometer
         self.assertTrue(
             self.constructor.open_gpibusb.called
         )
 
     def test_level_meter_no_construction(self):
         self.instrument._managed_instance = self.constructor
-        self.assertEqual(self.constructor, self.instrument.magnetometer)
+        self.assertEqual(self.constructor, self.instrument._magnetometer)
         self.assertFalse(self.constructor.open_gpibusb.called)

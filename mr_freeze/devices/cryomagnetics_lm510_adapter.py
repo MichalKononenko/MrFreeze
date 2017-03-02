@@ -43,7 +43,7 @@ class CryomagneticsLM510(object):
         self._timeout_in_seconds = new_timeout
 
     @property
-    def level_meter(self) -> Optional[_CryomagneticsLM510]:
+    def _level_meter(self) -> Optional[_CryomagneticsLM510]:
         """
 
         :return:
@@ -53,3 +53,11 @@ class CryomagneticsLM510(object):
                 port=self.port_name, baud=self.baud_rate
             )
         return self._managed_instance
+
+    @property
+    def channel_1_measurement(self):
+        return self._level_meter.channel_1_measurement
+
+    @property
+    def channel_2_measurement(self):
+        return self._level_meter.channel_2_measurement

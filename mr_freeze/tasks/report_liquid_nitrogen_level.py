@@ -38,9 +38,9 @@ class ReportLiquidNitrogenLevel(object):
         :return: The measured liquid nitrogen level
         """
         if self.ln_2_channel == 1:
-            return self.gauge.level_meter.channel_1_measurement
+            return self.gauge.channel_1_measurement
         elif self.ln_2_channel == 2:
-            return self.gauge.level_meter.channel_2_measurement
+            return self.gauge.channel_2_measurement
         else:
             raise RuntimeError("Attempted to measure using unknown channel "
                                "%d" % self.ln_2_channel)

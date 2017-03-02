@@ -55,7 +55,7 @@ class TestCall(TestReportMagneticField):
         """
         self.task(self.executor)
         field_strength = self._task_function()
-        self.assertEqual(self.gauge.magnetometer.field, field_strength)
+        self.assertEqual(self.gauge.field, field_strength)
 
     @property
     def _task_function(self):

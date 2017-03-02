@@ -49,7 +49,7 @@ class Lakeshore475(object):
         self._address = new_address
 
     @property
-    def magnetometer(self) -> Optional[_Lakeshore475]:
+    def _magnetometer(self) -> Optional[_Lakeshore475]:
         """
 
         :return: The instance of the magnetometer that this adapter manages, or
@@ -60,3 +60,7 @@ class Lakeshore475(object):
                 port=self.port_name, gpib_address=self.address)
 
         return self._managed_instance
+
+    @property
+    def field(self):
+        return self._magnetometer.field
