@@ -4,10 +4,10 @@ Measures the current from the Cryomagnetics 4G power supply
 from time import sleep
 from quantities import Quantity
 from mr_freeze.devices.cryomagnetics_4g_adapter import Cryomagnetics4G
-from mr_freeze.tasks.abstract_task import AbstractTask
+from mr_freeze.tasks.report_variable_task import ReportVariableTask
 
 
-class ReportCurrent(AbstractTask):
+class ReportCurrent(ReportVariableTask):
     """
     Reports the current from the Cryomagnetics 4G supply
     """
@@ -17,6 +17,11 @@ class ReportCurrent(AbstractTask):
         :param gauge: The instrument to use for measuring the current
         """
         self.gauge = gauge
+
+    @property
+    def title(self):
+        return "Current"
+
 
     def task(self) -> Quantity:
         """

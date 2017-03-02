@@ -3,10 +3,10 @@ Describes how to report the magnetic field
 """
 from time import sleep
 from mr_freeze.devices.lakeshore_475 import Lakeshore475
-from mr_freeze.tasks.abstract_task import AbstractTask
+from mr_freeze.tasks.report_variable_task import ReportVariableTask
 
 
-class ReportMagneticField(AbstractTask):
+class ReportMagneticField(ReportVariableTask):
     """
     Implements a task to return the magnetic field
     """
@@ -19,6 +19,10 @@ class ReportMagneticField(AbstractTask):
         :param gauge: The gauge to use for making device measurements
         """
         self.gauge = gauge
+
+    @property
+    def title(self) -> str:
+        return "Magnetic Field"
 
     @property
     def _field_strength(self):
