@@ -12,16 +12,14 @@ class ReportCurrent(ReportVariableTask):
     """
     Reports the current from the Cryomagnetics 4G supply
     """
+    title = "Current"
+
     def __init__(self, gauge: Cryomagnetics4G):
         """
 
         :param gauge: The instrument to use for measuring the current
         """
         self.gauge = gauge
-
-    @property
-    def title(self):
-        return "Current"
 
     def task(self, executor: Executor) -> Quantity:
         """

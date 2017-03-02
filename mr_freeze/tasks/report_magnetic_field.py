@@ -11,6 +11,8 @@ class ReportMagneticField(ReportVariableTask):
     """
     Implements a task to return the magnetic field
     """
+    title = "Magnetic Field"
+
     _minimum_time_between_samples = 0.3
 
     def __init__(self, gauge: Lakeshore475):
@@ -20,10 +22,6 @@ class ReportMagneticField(ReportVariableTask):
         :param gauge: The gauge to use for making device measurements
         """
         self.gauge = gauge
-
-    @property
-    def title(self) -> str:
-        return "Magnetic Field"
 
     @property
     def _field_strength(self):
