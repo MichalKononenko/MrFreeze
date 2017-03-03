@@ -11,16 +11,19 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument(
     '--gaussmeter-address', type=str,
+    default='/dev/ttyUSB0',
     help="The address of the gaussmeter (example: /dev/ttyUSB0)"
 )
 
 parser.add_argument(
     '--power-supply-address', type=str,
+    default='/dev/ttyUSB1',
     help="The address of the magnet power supply (example: /dev/ttyUSB0)"
 )
 
 parser.add_argument(
     '--ln2-gauge-address', type=str,
+    default='/dev/ttyUSB2',
     help="The address of the liquid nitrogen level meter (example: "
          "/dev/ttyUSB0)"
 )
