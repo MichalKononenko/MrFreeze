@@ -10,7 +10,6 @@ from mr_freeze.tasks.report_magnetic_field import ReportMagneticField
 from mr_freeze.tasks.report_current import ReportCurrent
 from mr_freeze.tasks.report_liquid_nitrogen_level \
     import ReportLiquidNitrogenLevel
-from mr_freeze.tasks.write_csv_values import WriteCSVValues
 
 
 class TestMakeMeasurement(unittest.TestCase):
@@ -44,6 +43,6 @@ class TestTask(TestMakeMeasurement):
     def test_task(self):
         self.task.task(self.executor)
         self.assertEqual(
-            4,
+            5,
             self.executor.submit.call_count
         )
