@@ -25,7 +25,7 @@ class TestCSVFile(unittest.TestCase):
     @staticmethod
     def read_csv_file():
         with open(TESTING_PARAMETERS["file-name"], mode='rb') as file:
-            return os.linesep.join({line.decode() for line in file})
+            return os.linesep.join([line.decode() for line in file])
 
     def tearDown(self):
         if os.path.exists(TESTING_PARAMETERS["file-name"]):
@@ -45,7 +45,7 @@ class TestWriteTitles(TestCSVFile):
     @property
     def expected_data(self):
         return self.file.delimiter.join(
-            {variable.title for variable in self.variables}
+            (variable.title for variable in self.variables)
         ) + os.linesep
 
 
@@ -66,5 +66,5 @@ class TestWriteValues(TestCSVFile):
     @property
     def expected_data(self):
         return self.file.delimiter.join(
-            {str(value) for value in self.values}
+            (str(value) for value in self.values)
         ) + os.linesep
