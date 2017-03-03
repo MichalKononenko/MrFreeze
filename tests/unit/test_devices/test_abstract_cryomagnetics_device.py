@@ -51,7 +51,7 @@ class TestQuery(TestAbstractCryomagneticsDevice):
     command = "enter"
     expected_response = "data"
 
-    data_to_read = "%s\r\n%s" % (
+    data_to_read = "%s\r\n%s\r\n" % (
         command, expected_response
     )
 
@@ -74,7 +74,7 @@ class TestQuery(TestAbstractCryomagneticsDevice):
 
 class TestParseQuery(TestAbstractCryomagneticsDevice):
     command = "Testing"
-    data_format = "%s\r\n%s"
+    data_format = "%s\r\n%s\r\n"
 
     def test_command_not_echoed_command(self):
         bad_echo = "String1"
