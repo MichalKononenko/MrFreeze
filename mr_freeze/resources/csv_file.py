@@ -8,7 +8,7 @@ class CSVFile(object):
     Represents an output of variables to CSV
     """
     _mode = 'ab'
-    delimiter = ','
+    delimiter = ', '
 
     def __init__(
             self, path_to_csv_file: str, variables_to_write: Iterable[
@@ -21,7 +21,7 @@ class CSVFile(object):
 
     def write_titles(self):
         values_to_write = self.delimiter.join(
-            {variable.title for variable in self.variables}
+            [variable.title for variable in self.variables]
         ) + os.linesep
 
         with open(self.path, mode=self._mode) as file:
@@ -29,7 +29,7 @@ class CSVFile(object):
 
     def write_values(self, values: Iterable):
         values_to_write = self.delimiter.join(
-            {str(value) for value in values}
+            [str(value) for value in values]
         ) + os.linesep
         with open(self.path, mode=self._mode) as file:
             file.write(values_to_write.encode())

@@ -19,7 +19,7 @@ device_log.setLevel(logging.DEBUG)
 device_log.addHandler(ch)
 
 TESTING_PARAMETERS = {
-    "instrument-port": "/dev/ttyUSB2",
+    "instrument-port": "/dev/ttyUSB1",
     "baud-rate": 9600,
     "reset-command": "*RST",
     "timeout": 2
@@ -49,3 +49,10 @@ class TestCurrent(TestCryomagnetics4G):
         self.assertIsInstance(
             self.instrument.current, Quantity
         )
+
+
+class TestAtomicity(TestCryomagnetics4G):
+    def test_atomicity(self):
+        response1 = self.instrument.query("*IDN?")
+        response2 = self.instrument.current
+        self.assertNotEqual(response1, response2)
