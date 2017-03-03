@@ -12,6 +12,12 @@ log = logging.getLogger(__name__)
 
 
 class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
+    """
+    Base class for devices that use Cryomagnetics instruments to
+    communicate. The behaviour to query such a device over USB is special.
+
+    A command is sent to the device, ending with ``\r\n``. The
+    """
     _querying_lock = Lock()  # type: Lock
 
     def __init__(self, filelike):
