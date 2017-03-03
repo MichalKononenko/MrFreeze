@@ -1,5 +1,4 @@
 import logging
-import signal
 from time import sleep
 from concurrent.futures import Executor, ThreadPoolExecutor
 from mr_freeze.resources.csv_file import CSVFile
@@ -11,6 +10,7 @@ from mr_freeze.tasks.report_magnetic_field import ReportMagneticField
 from mr_freeze.tasks.report_current import ReportCurrent
 from mr_freeze.tasks.write_csv_title import WriteCSVTitle
 from mr_freeze.tasks.make_measurement import MakeMeasurement
+from mr_freeze.tasks.get_current_date import GetCurrentDate
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
@@ -21,6 +21,7 @@ class MainLoop(object):
     Run the application. Takes commands in from the application parser
     """
     variables_to_report = {
+        GetCurrentDate,
         ReportLiquidNitrogenLevel,
         ReportCurrent,
         ReportMagneticField
@@ -47,6 +48,8 @@ class MainLoop(object):
 
         self.polling_interval = time_between_reports
         self.timeout = task_timeout
+
+        self.get_date_task = GetCurrentDate()
 
     @classmethod
     def interrupt(cls):
