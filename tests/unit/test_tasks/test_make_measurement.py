@@ -1,5 +1,6 @@
 import unittest
 import unittest.mock as mock
+import quantities as pq
 from concurrent.futures import Executor
 from mr_freeze.tasks.make_measurement import MakeMeasurement
 from mr_freeze.devices.lakeshore_475 import Lakeshore475
@@ -10,6 +11,7 @@ from mr_freeze.tasks.report_magnetic_field import ReportMagneticField
 from mr_freeze.tasks.report_current import ReportCurrent
 from mr_freeze.tasks.report_liquid_nitrogen_level \
     import ReportLiquidNitrogenLevel
+from mr_freeze.tasks.write_csv_values import WriteCSVValues
 
 
 class TestMakeMeasurement(unittest.TestCase):
@@ -45,4 +47,28 @@ class TestTask(TestMakeMeasurement):
         self.assertEqual(
             5,
             self.executor.submit.call_count
+        )
+
+
+class TestWriteValuesToFile(TestMakeMeasurement):
+    """
+    Replicate a bug where data is not written correctly due to different
+    values not being able to be converted to a float
+    """
+    write_values_task = mock.MagicMock(spec=WriteCSVValues)
+    executor = mock.MagicMock(spec=Executor)
+
+    def setUp(self):
+        TestMakeMeasurement.setUp(self)
+        self.data_to_write = [1, 2 * pq.gauss, "3"]
+        self.expected_call_data = ["1", "2.0", "3"]
+
+    def test_write_values(self):
+        self.task.write_values_to_file(
+            self.data_to_write, self.executor,
+            write_values_task=self.write_values_task
+        )
+        self.assertEqual(
+            mock.call(self.task.csv_file, self.expected_call_data),
+            self.write_values_task.call_args
         )
