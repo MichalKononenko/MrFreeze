@@ -75,5 +75,3 @@ class MainLoop(object):
                       "reports")
             sleep(self.polling_interval)
 
-signal.signal(signal.SIGTERM, MainLoop.interrupt())
-signal.signal(signal.SIGINT, MainLoop.interrupt())
