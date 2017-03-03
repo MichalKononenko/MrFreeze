@@ -29,7 +29,7 @@ class CSVFile(object):
 
     def write_values(self, values: Iterable):
         values_to_write = self.delimiter.join(
-            {str(value) for value in values}
+            [str(value) for value in values]
         ) + os.linesep
         with open(self.path, mode=self._mode) as file:
             file.write(values_to_write.encode())

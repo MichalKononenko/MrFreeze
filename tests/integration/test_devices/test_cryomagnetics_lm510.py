@@ -27,7 +27,7 @@ log.addHandler(ch)
 device_log.addHandler(ch)
 
 TESTING_PARAMETERS = {
-    "instrument-port": "/dev/ttyUSB0",
+    "instrument-port": "/dev/ttyUSB1",
     "baud-rate": 9600,
     "gpib-address": 1,
     "channel-to-measure": 2,

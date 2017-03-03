@@ -3,6 +3,7 @@ Contains methods for working with the Lakeshore 475 Gaussmeter
 """
 from typing import Optional
 from instruments.lakeshore import Lakeshore475 as _Lakeshore475
+from time import sleep
 
 
 class Lakeshore475(object):
@@ -54,10 +55,15 @@ class Lakeshore475(object):
 
         :return: The instance of the magnetometer that this adapter manages, or
             None if there is no instance.
+
+        .. note::
+            The 1 second delay is required for the gaussmeter to reset
+            itself and accept commands
         """
         if self._managed_instance is None:
             self._managed_instance = self._constructor.open_gpibusb(
                 port=self.port_name, gpib_address=self.address)
+            sleep(1)
 
         return self._managed_instance
 

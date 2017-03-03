@@ -19,7 +19,7 @@ device_log.setLevel(logging.DEBUG)
 device_log.addHandler(ch)
 
 TESTING_PARAMETERS = {
-    "instrument-port": "/dev/ttyUSB0",
+    "instrument-port": "/dev/ttyUSB2",
     "baud-rate": 9600,
     "reset-command": "*RST",
     "timeout": 2
