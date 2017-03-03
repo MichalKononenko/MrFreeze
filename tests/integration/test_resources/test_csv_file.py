@@ -3,6 +3,7 @@ import unittest
 import unittest.mock as mock
 from mr_freeze.tasks.report_variable_task import ReportVariableTask
 from mr_freeze.resources.csv_file import CSVFile
+from datetime import datetime
 
 TESTING_PARAMETERS = {
     "file-name": os.path.join(os.curdir, 'test.csv')
@@ -51,7 +52,7 @@ class TestWriteTitles(TestCSVFile):
 class TestWriteValues(TestCSVFile):
     def setUp(self):
         TestCSVFile.setUp(self)
-        self.values = (1, 2, 3)
+        self.values = (1, 2, datetime.now())
 
     def test_write_values(self):
         self.file.write_values(self.values)
