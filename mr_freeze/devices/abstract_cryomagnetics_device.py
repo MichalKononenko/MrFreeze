@@ -20,16 +20,17 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
     """
     _querying_lock = Lock()  # type: Lock
 
+    MAXIMUM_MESSAGE_SIZE = 100
+
     def __init__(self, filelike):
         super().__init__(filelike)
 
     def query(self, cmd, size=-1):
         self._querying_lock.acquire()
-        self.terminator = '\r\n'
+        self.terminator = '\r'
         self.write(cmd + self.terminator)
-        self.terminator = '\r\n\n'
-
-        response = self.read(size=size)
+        self.terminator = '\r\n'
+        response = self.read(size=self.MAXIMUM_MESSAGE_SIZE)
         log.debug("received response %s", response)
         self._querying_lock.release()
 
@@ -42,7 +43,7 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
 
         echoed_command = re.search("^.*(?=\r\n)", response)
         response_from_device = re.search(
-            "(?<=\r\n).*$",
+            "(?<=\r\n).*(?=\r\n$)",
             response
         )
 

@@ -20,12 +20,12 @@ class MainLoop(object):
     """
     Run the application. Takes commands in from the application parser
     """
-    variables_to_report = {
+    variables_to_report = [
         GetCurrentDate,
         ReportLiquidNitrogenLevel,
         ReportCurrent,
         ReportMagneticField
-    }
+    ]
 
     should_run = True
 

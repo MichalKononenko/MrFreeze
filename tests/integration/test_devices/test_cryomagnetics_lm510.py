@@ -27,7 +27,7 @@ log.addHandler(ch)
 device_log.addHandler(ch)
 
 TESTING_PARAMETERS = {
-    "instrument-port": "/dev/ttyUSB1",
+    "instrument-port": "/dev/ttyUSB0",
     "baud-rate": 9600,
     "gpib-address": 1,
     "channel-to-measure": 2,
@@ -52,6 +52,9 @@ class TestCryomagneticsLM510(unittest.TestCase):
         response = self.instrument.query("*IDN?")
         self.assertIsInstance(response, str)
         self.assertNotEqual(response, "*IDN?")
+
+    def tearDown(self):
+        del self.instrument
 
 
 class TestChannel1DataReady(TestCryomagneticsLM510):
@@ -92,3 +95,14 @@ class TestMeasurement(TestCryomagneticsLM510):
             self.instrument.channel_2_measurement
         )
         self.assertIsInstance(self.instrument.channel_2_measurement, Quantity)
+
+
+class TestAtomicity(TestCryomagneticsLM510):
+    def test_atomicity(self):
+        response1 = self.instrument.query("*IDN?")
+        if TESTING_PARAMETERS["channel-to-measure"] == 1:
+            response2 = self.instrument.channel_1_measurement
+        else:
+            response2 = self.instrument.channel_2_measurement
+
+        self.assertNotEqual(response1, response2)
