@@ -16,7 +16,7 @@ class ReportLiquidNitrogenLevel(ReportVariableTask):
 
     _minimum_time_between_samples = 0.3
 
-    def __init__(self, gauge: CryomagneticsLM510, ln2_channel=2):
+    def __init__(self, gauge: CryomagneticsLM510, ln2_channel: int=2) -> None:
         """
 
         :param gauge: The gauge that reports the nitrogen level
@@ -40,7 +40,7 @@ class ReportLiquidNitrogenLevel(ReportVariableTask):
             raise RuntimeError("Attempted to measure using unknown channel "
                                "%d" % self.ln_2_channel)
 
-    def _wait_for_minimum_time(self):
+    def _wait_for_minimum_time(self) -> None:
         """
         Wait for enough time between the measurements to allow the
         LN2 level meter to return to a state where it can measure again

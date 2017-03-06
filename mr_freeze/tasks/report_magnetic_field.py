@@ -15,7 +15,7 @@ class ReportMagneticField(ReportVariableTask):
 
     _minimum_time_between_samples = 0.3
 
-    def __init__(self, gauge: Lakeshore475):
+    def __init__(self, gauge: Lakeshore475) -> None:
         """
         Initialize the task
 
@@ -31,7 +31,7 @@ class ReportMagneticField(ReportVariableTask):
         """
         return self.gauge.field
 
-    def _wait_for_minimum_time(self):
+    def _wait_for_minimum_time(self) -> None:
         """
         Delay execution, allowing the unit to reset itself to a state ready
         to report the pressure again

@@ -1,6 +1,7 @@
 """
 Contains methods for working with the Lakeshore 475 Gaussmeter
 """
+from quantities import Quantity
 from typing import Optional
 from instruments.lakeshore import Lakeshore475 as _Lakeshore475
 from time import sleep
@@ -24,7 +25,7 @@ class Lakeshore475(object):
         return self._port
 
     @port_name.setter
-    def port_name(self, new_port_name: str):
+    def port_name(self, new_port_name: str) -> None:
         """
 
         :param new_port_name: The new port
@@ -41,7 +42,7 @@ class Lakeshore475(object):
         return self._address
 
     @address.setter
-    def address(self, new_address: int):
+    def address(self, new_address: int) -> None:
         """
 
         :param new_address: The desired address
@@ -68,7 +69,7 @@ class Lakeshore475(object):
         return self._managed_instance
 
     @property
-    def field(self):
+    def field(self) -> Quantity:
         """
 
         :return: The measured magnetic field from the Gaussmeter

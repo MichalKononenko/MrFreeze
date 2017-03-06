@@ -1,3 +1,7 @@
+"""
+Contains the main application loop, which iterates for the lifetime of the
+application, and reports the required variables
+"""
 import logging
 from time import sleep
 from concurrent.futures import Executor, ThreadPoolExecutor
@@ -34,14 +38,30 @@ class MainLoop(object):
             magnetometer_port: str, power_supply_port: str,
             time_between_reports: int, task_timeout: int
 
-    ):
+    ) -> None:
+        """
+        Instantiate the resources required for the application loop based on
+        the arguments given in the command line
+
+        :param csv_file_path: The path to the output CSV file
+        :param ln2_gauge_port: The name of the port on which the liquid
+        nitrogen level meter is connected
+        :param magnetometer_port: The name of the port on which the
+        Lakeshore 475 magnetometer is connected
+        :param power_supply_port: The name of the port on which the
+        Cryomagnetics 4G power supply is connected
+        :param time_between_reports: The time in seconds that should elapse
+        before the variables are measured
+        :param task_timeout: The amount of time to wait before declaring a
+        task dead
+        """
         self.csv_file = CSVFile(csv_file_path, self.variables_to_report)
 
         self.ln2_gauge = CryomagneticsLM510()
         self.ln2_gauge.port_name = ln2_gauge_port
 
         self.magnetometer = Lakeshore475()
-        self.magnetometer.magnetometer_address = magnetometer_port
+        self.magnetometer.port_name = magnetometer_port
 
         self.power_supply = Cryomagnetics4G()
         self.power_supply.port_name = power_supply_port
@@ -52,21 +72,37 @@ class MainLoop(object):
         self.get_date_task = GetCurrentDate()
 
     @classmethod
-    def interrupt(cls):
+    def interrupt(cls) -> None:
+        """
+        Stop the application
+        """
         log.info("Caught interrupt signal, exiting")
         cls.should_run = False
 
-    def run(self):
+    def run(self) -> None:
+        """
+        Write down the title line for the output CSV file, and then start
+        the variable measurement loop
+        """
         with ThreadPoolExecutor() as executor:
             self._write_title(executor)
             self._run_loop(executor)
 
-    def _write_title(self, executor: Executor):
+    def _write_title(self, executor: Executor) -> None:
+        """
+        Write the title to the CSV file
+        :param executor: The executor to use for writing these values
+        """
         task = WriteCSVTitle(self.csv_file)
         task(executor).result(self.timeout)
         log.debug("Wrote title to csv file %s", self.csv_file)
 
-    def _run_loop(self, executor: Executor):
+    def _run_loop(self, executor: Executor) -> None:
+        """
+        Run the loop
+
+        :param executor: The executor with which the loop will be run
+        """
         while self.should_run:
             log.debug("Measuring variables")
             task = MakeMeasurement(
@@ -77,4 +113,3 @@ class MainLoop(object):
             log.debug("Measurement completed. Waiting for time between "
                       "reports")
             sleep(self.polling_interval)
-

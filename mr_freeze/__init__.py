@@ -1,3 +1,3 @@
 """
-Contains the required application
+Contains the application
 """
