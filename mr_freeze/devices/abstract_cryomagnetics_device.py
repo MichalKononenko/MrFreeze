@@ -45,20 +45,18 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
 
     def query(self, cmd, size=-1):
         """
-        Write a message to the device, listen for a response, parse the
-        response, and return it.
-
-        .. note::
-            What if we defaulted to using the size be
-            ``MAXIMUM_MESSAGE_SIZE`` if the size is negative?
+        Write a command to the device, receive the response, and send this
+        response to the parser.
 
         :param str cmd: The command to send
-        :param int size: Ordinarily, this would be the number of characters to
-        read. A size of -1 implies that reading should be done until a
-        termination character is reached. Since this does not happen here,
-        the size parameter is not used
-        :return: The response
-        :rtype str
+        :param int size: Ordinarily, this would represent the number of
+            characters to read, but since this is fixed to
+            ``MAXIMUM_MESSAGE_SIZE``, this parameter has no semantic
+            meaning. It is here to provide a consistent API for using
+            instruments.
+
+        :return The response from the device
+        :rtype: str
         """
         self._querying_lock.acquire()
         self.terminator = '\r'
@@ -82,7 +80,7 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
         :return: The response
         :rtype: str
         :raises: :exc:`RuntimeError` if the response or query cannot be
-        retrieved
+            retrieved
         """
         log.debug("Query parser received command %s and response %s",
                   command, response)

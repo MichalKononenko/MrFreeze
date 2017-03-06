@@ -47,7 +47,7 @@ class Cryomagnetics4G(object):
         """
 
         :param new_port: The desired port that the power supply will be
-        attached to
+            attached to
         """
         self._port = new_port
 
@@ -56,9 +56,9 @@ class Cryomagnetics4G(object):
         """
 
         :return: The baud rate (bits per second transfer rate) between this
-        machine and the device. The baud rate setting must be the same on
-        both the machine running this application, and on the device,
-        in order to allow communication.
+            machine and the device. The baud rate setting must be the same on
+            both the machine running this application, and on the device,
+            in order to allow communication.
         """
         return self._baud_rate
 

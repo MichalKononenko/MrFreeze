@@ -84,10 +84,10 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
 
         :param str cmd: The command to send
         :param int size: The maximum number of characters to be read in the
-        response. This is currently set to the value given in
-        ``MAXIMUM_MESSAGE_SIZE``. It is here only to provide a consistent
-        API for the ``query`` function. This parameter does nothing
-        semantically
+            response. This is currently set to the value given in
+            ``MAXIMUM_MESSAGE_SIZE``. It is here only to provide a consistent
+            API for the ``query`` function. This parameter does nothing
+            semantically
         :return: The response from the device
         :rtype: str
         """

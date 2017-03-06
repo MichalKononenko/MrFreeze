@@ -110,7 +110,7 @@ class CryomagneticsLM510(AbstractCryomagneticsDevice):
         Make a measurement on channel 2
 
         :return: The level of cryogen measured by the probe connected to
-        channel 2 in the meter
+            channel 2 in the meter
         :rtype: Quantity
         """
         return self._measurement(2)
@@ -126,7 +126,7 @@ class CryomagneticsLM510(AbstractCryomagneticsDevice):
         Make a measurement on a particular channel
 
         :param int channel_number: The channel on which the measurement is
-        to be made
+            to be made
         :return: The measured value on that channel
         :rtype: Quantity
         """

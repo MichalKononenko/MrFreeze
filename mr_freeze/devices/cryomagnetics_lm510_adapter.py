@@ -58,8 +58,8 @@ class CryomagneticsLM510(object):
         """
 
         :return: The elapsed time for which the instrument will wait for a
-        response. After this, it will be assumed that the device has not
-        provided a response, and an :exc:`IOError` will be raised.
+            response. After this, it will be assumed that the device has not
+            provided a response, and an :exc:`IOError` will be raised.
         :rtype: float
         """
         return self._timeout_in_seconds
