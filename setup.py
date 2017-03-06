@@ -1,7 +1,7 @@
 """
-Installs the application to the python directory
+Contains python package metadata, allowing mr_freeze to be installed with pip
 """
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name="mr_freeze",
@@ -9,12 +9,8 @@ setup(
     description="Reports measured variables from a cryostat",
     author="Michal Kononenko",
     author_email="mkononen@uwaterloo.ca",
-    packages=[
-        "mr_freeze",
-        "mr_freeze.devices",
-        "mr_freeze.resources",
-        "mr_freeze.tasks"
-    ],
+    url='https://github.com/MichalKononenko/MrFreeze',
+    packages=["mr_freeze"],
     install_requires=[
         "instrumentkit==0.3.1",
         "typing==3.5.3.0"
