@@ -1,3 +1,6 @@
+"""
+Implements a Cryomagnetics 4G Power supply for InstrumentKit
+"""
 from mr_freeze.devices.abstract_cryomagnetics_device \
     import AbstractCryomagneticsDevice
 import quantities as pq
@@ -30,27 +33,64 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
 
     @property
     def terminator(self):
+        """
+
+        :return: The termination character for the device. The terminator is
+         the carriage return character (ASCII 10), followed by the newline
+         character (ASCII 13)
+        """
         return '\r\n'
 
     @property
     def unit(self):
+        """
+        The power supply is capable of expressing the output current going
+        into the magnet in amperes, but it can also convert the current to a
+        predicted magnetic field using a particular relation.
+
+        :return: The units in which the power supply expresses its measurement
+        """
         response = self.query("UNITS?")
         return self.UNITS[response]
 
     @unit.setter
     def unit(self, unit_to_set):
+        """
+        Set the unit to either amperes or gauss. The valid units to which
+        this value can be set are the keys in the ``UNITS`` dictionary of
+        this object
+
+        :param str unit_to_set: The unit to set
+        :raises: :exc:`ValueError` if the unit cannot be set
+        """
         if unit_to_set not in self.UNITS.keys():
             raise ValueError("Attempted to set unit to an invalid value")
         self.query("UNITS %s" % unit_to_set)
 
     @property
     def current(self):
+        """
+
+        :return: The current in amperes being sent out of the power supply
+        """
         self.unit = self.REVERSE_UNITS[pq.amp]
         sleep(self.instrument_measurement_timeout)
 
         return self.parse_current_response(self.query("IOUT?"))
 
     def query(self, cmd, size=-1):
+        """
+        Query the device
+
+        :param str cmd: The command to send
+        :param int size: The maximum number of characters to be read in the
+            response. This is currently set to the value given in
+            ``MAXIMUM_MESSAGE_SIZE``. It is here only to provide a consistent
+            API for the ``query`` function. This parameter does nothing
+            semantically
+        :return: The response from the device
+        :rtype: str
+        """
         self._querying_lock.acquire()
         self.write(cmd + self.terminator)
 

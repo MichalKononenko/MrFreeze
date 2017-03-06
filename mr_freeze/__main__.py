@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+"""
+Module called when the application is executed. Runs the argument parser and
+starts the application loop
+"""
 from mr_freeze.argument_parser import parser
 from mr_freeze.main_loop import MainLoop
 import logging

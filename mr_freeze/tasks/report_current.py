@@ -14,7 +14,7 @@ class ReportCurrent(ReportVariableTask):
     """
     title = "Current"
 
-    def __init__(self, gauge: Cryomagnetics4G):
+    def __init__(self, gauge: Cryomagnetics4G) -> None:
         """
 
         :param gauge: The instrument to use for measuring the current
