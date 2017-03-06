@@ -16,16 +16,50 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
     Base class for devices that use Cryomagnetics instruments to
     communicate. The behaviour to query such a device over USB is special.
 
-    A command is sent to the device, ending with ``\r\n``. The
+    A command is sent to the device, ending with ``\\r``. The command is
+    then repeated back, ending with ``\\r\\n``. The response then follows,
+    again ending with ``\\r\\n``. The trouble with this is that if I set
+    ``\\r\\n`` as the terminator for the read response, then it is ambiguous
+    when the message ends.
+
+    To solve this problem, a maximum message size of 140 characters is
+    defined in ``MAXIMUM_MESSAGE_SIZE``. It is assumed that this is enough
+    space for the output of a single command.
+
+    A querying lock in ``_querying_lock`` is also defined. This lock is
+    acquired when querying and released after the response has been received.
+
+    Queries are thread-safe.
     """
     _querying_lock = Lock()  # type: Lock
 
-    MAXIMUM_MESSAGE_SIZE = 100
+    MAXIMUM_MESSAGE_SIZE = 140
 
     def __init__(self, filelike):
+        """
+        Create an instance of this device
+
+        :param filelike: The communicator to use for making calls to the device
+        """
         super().__init__(filelike)
 
     def query(self, cmd, size=-1):
+        """
+        Write a message to the device, listen for a response, parse the
+        response, and return it.
+
+        .. note::
+            What if we defaulted to using the size be
+            ``MAXIMUM_MESSAGE_SIZE`` if the size is negative?
+
+        :param str cmd: The command to send
+        :param int size: Ordinarily, this would be the number of characters to
+        read. A size of -1 implies that reading should be done until a
+        termination character is reached. Since this does not happen here,
+        the size parameter is not used
+        :return: The response
+        :rtype str
+        """
         self._querying_lock.acquire()
         self.terminator = '\r'
         self.write(cmd + self.terminator)
@@ -38,6 +72,18 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
 
     @staticmethod
     def parse_query(command, response):
+        """
+        After receiving the response from the device, extract the echoed
+        command and the device response. Check that the echoed command
+        matches the command sent to the device, and return the response
+
+        :param command: The command which was sent to the device
+        :param response: The response from the device
+        :return: The response
+        :rtype: str
+        :raises: :exc:`RuntimeError` if the response or query cannot be
+        retrieved
+        """
         log.debug("Query parser received command %s and response %s",
                   command, response)
 

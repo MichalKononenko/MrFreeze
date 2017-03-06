@@ -69,4 +69,8 @@ class Lakeshore475(object):
 
     @property
     def field(self):
+        """
+
+        :return: The measured magnetic field from the Gaussmeter
+        """
         return self._magnetometer.field
