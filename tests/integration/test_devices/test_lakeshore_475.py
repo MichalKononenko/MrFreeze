@@ -31,3 +31,16 @@ class TestLakeshore475(unittest.TestCase):
         self.assertIsInstance(
             self.meter.field, Quantity
         )
+
+
+class TestNDACBug(TestLakeshore475):
+    def test_ndac_bug(self):
+        field1 = self.meter._magnetometer.query("*IDN?")
+        field2 = self.meter.field
+
+        self.assertIsInstance(
+            field1, str
+        )
+        self.assertIsInstance(
+            field2, Quantity
+        )

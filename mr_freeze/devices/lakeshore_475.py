@@ -74,4 +74,8 @@ class Lakeshore475(object):
 
         :return: The measured magnetic field from the Gaussmeter
         """
-        return self._magnetometer.field
+        try:
+            return self._magnetometer.field
+        except ValueError:
+            return -100000.0 * self._magnetometer.field_units  # type:
+            # Quantity
