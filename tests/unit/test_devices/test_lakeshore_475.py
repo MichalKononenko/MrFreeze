@@ -3,6 +3,7 @@ Contains unit tests for the Lakeshore 475 adapter
 """
 import unittest
 import unittest.mock as mock
+import quantities as pq
 from mr_freeze.devices.lakeshore_475 import Lakeshore475
 
 
@@ -48,3 +49,27 @@ class TestMagnetometer(TestLakeshore475):
         self.instrument._managed_instance = self.constructor
         self.assertEqual(self.constructor, self.instrument._magnetometer)
         self.assertFalse(self.constructor.open_gpibusb.called)
+
+
+class TestField(TestLakeshore475):
+
+    class BadMagnetometer(object):
+        @property
+        def field(self):
+            raise ValueError("Kaboom")
+
+        @property
+        def field_units(self):
+            return pq.gauss
+
+    def test_field_no_error(self):
+        self.assertIsNotNone(self.instrument.field)
+
+    def test_field_valueError(self):
+        with mock.patch(
+                'mr_freeze.devices.lakeshore_475.Lakeshore475.'
+                '_magnetometer', new=self.BadMagnetometer()):
+            field = self.instrument.field
+        self.assertAlmostEqual(
+            -100000.0 * pq.gauss, field
+        )
