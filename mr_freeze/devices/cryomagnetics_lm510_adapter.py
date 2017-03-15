@@ -4,8 +4,10 @@ provides a layer of abstraction between the InstrumentKit implementation of
 the device, and a working device
 """
 from typing import Optional
-from quantities import Quantity
+from numpy import nan
+from quantities import Quantity, cm
 from instruments.abstract_instruments import Instrument as _Instrument
+from mr_freeze.exceptions import NoEchoedCommandFoundError
 from mr_freeze.devices.cryomagnetics_lm510 import CryomagneticsLM510 as \
     _CryomagneticsLM510
 
@@ -19,6 +21,8 @@ class CryomagneticsLM510(object):
     _timeout_in_seconds = 1.0  # type: float
     _managed_instance = None  # type: _Instrument
     _constructor = _CryomagneticsLM510  # type: _Instrument
+
+    null_value = nan * cm
 
     @property
     def port_name(self) -> str:
@@ -90,7 +94,13 @@ class CryomagneticsLM510(object):
 
         :return: A measurement on Channel 1 of the device
         """
-        return self._level_meter.channel_1_measurement
+        try:
+            value = self._level_meter.\
+                channel_1_measurement  # type: Optional[Quantity]
+        except NoEchoedCommandFoundError:
+            value = self.null_value
+
+        return value if value is not None else self.null_value
 
     @property
     def channel_2_measurement(self) -> Quantity:
@@ -98,4 +108,10 @@ class CryomagneticsLM510(object):
 
         :return: A measurement on Channel 2 of the device
         """
-        return self._level_meter.channel_2_measurement
+        try:
+            value = self._level_meter.\
+                channel_2_measurement  # type: Optional[Quantity]
+        except NoEchoedCommandFoundError:
+            value = self.null_value
+
+        return value if value is not None else self.null_value

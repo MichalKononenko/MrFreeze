@@ -10,8 +10,10 @@ from further business logic.
     considered as types that are "owned" by this application. All I/O for
     the device should go through this adapter layer.
 """
+import numpy as np
 from typing import Optional
-from quantities import Quantity
+from quantities import Quantity, gauss
+from mr_freeze.exceptions import NoEchoedCommandFoundError
 from mr_freeze.devices.cryomagnetics_4g import Cryomagnetics4G as \
     _Cryomagnetics4G
 
@@ -23,6 +25,8 @@ class Cryomagnetics4G(object):
     _port = '/dev/ttyUSB0'
     _baud_rate = 9600
     _managed_instance = None
+
+    null_value = np.nan * gauss
 
     def __init__(self, constructor=_Cryomagnetics4G):
         """
@@ -88,4 +92,9 @@ class Cryomagnetics4G(object):
 
         :return: The current that the power supply has measured
         """
-        return self._power_supply.current
+        try:
+            current = self._power_supply.current
+        except NoEchoedCommandFoundError:
+            current = self.null_value
+
+        return current if current is not None else self.null_value
