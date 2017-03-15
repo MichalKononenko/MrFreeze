@@ -4,8 +4,10 @@ Describes a task to report the level of liquid nitrogen in the system
 from mr_freeze.devices.cryomagnetics_lm510_adapter import CryomagneticsLM510
 from time import sleep
 from concurrent.futures import Executor
-from quantities import Quantity
+from quantities import Quantity, cm
+from numpy import nan
 from mr_freeze.tasks.report_variable_task import ReportVariableTask
+from mr_freeze.exceptions import NoEchoedCommandFoundError
 
 
 class ReportLiquidNitrogenLevel(ReportVariableTask):
@@ -52,6 +54,9 @@ class ReportLiquidNitrogenLevel(ReportVariableTask):
 
         :return: The measured liquid nitrogen level
         """
-        level = self._ln2_level
+        try:
+            level = self._ln2_level
+        except NoEchoedCommandFoundError:
+            level = nan * cm
         self._wait_for_minimum_time()
         return level

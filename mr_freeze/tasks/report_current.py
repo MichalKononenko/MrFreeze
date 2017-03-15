@@ -3,9 +3,11 @@ Measures the current from the Cryomagnetics 4G power supply
 """
 from time import sleep
 from concurrent.futures import Executor
-from quantities import Quantity
+import numpy as np
+from quantities import Quantity, A
 from mr_freeze.devices.cryomagnetics_4g_adapter import Cryomagnetics4G
 from mr_freeze.tasks.report_variable_task import ReportVariableTask
+from mr_freeze.exceptions import NoEchoedCommandFoundError
 
 
 class ReportCurrent(ReportVariableTask):
@@ -26,6 +28,9 @@ class ReportCurrent(ReportVariableTask):
 
         :return: The measured current
         """
-        current = self.gauge.current
+        try:
+            current = self.gauge.current
+        except NoEchoedCommandFoundError:
+            current = np.nan * A
         sleep(0.3)
         return current

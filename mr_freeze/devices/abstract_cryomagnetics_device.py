@@ -83,10 +83,10 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
 
         :param command: The command which was sent to the device
         :param response: The response from the device
-        :return: The response
-        :rtype: str
-        :raises: :exc:`RuntimeError` if the response or query cannot be
-            retrieved
+        :return: The response from the device, or None if the response is none
+        :rtype: Union[None, str]
+        :raises: :exc:`NoEchoedCommandFoundError` if the echo did not find
+            a valid command
         """
         log.debug("Query parser received command %s and response %s",
                   command, response)
