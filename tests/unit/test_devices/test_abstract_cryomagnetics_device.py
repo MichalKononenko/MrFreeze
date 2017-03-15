@@ -16,14 +16,6 @@ class ConcreteCryomagneticsDevice(AbstractCryomagneticsDevice):
     def __init__(self):
         pass
 
-    @property
-    def terminator(self):
-        return self._terminator
-
-    @terminator.setter
-    def terminator(self, terminator):
-        self._terminator = terminator
-
     def read(self, *args, **kwargs):
         self.was_read_called = True
         return self.data_to_read

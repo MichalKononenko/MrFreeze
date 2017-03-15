@@ -7,6 +7,7 @@ import logging
 import re
 from instruments.abstract_instruments import Instrument as _Instrument
 from threading import Lock
+from mr_freeze.exceptions import NoEchoedCommandFoundError, NoResponseError
 
 log = logging.getLogger(__name__)
 
@@ -43,6 +44,14 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
         """
         super().__init__(filelike)
 
+    @property
+    def terminator(self):
+        """
+
+        :return: The termination character for the device
+        """
+        return '\r\n'
+
     def query(self, cmd, size=-1):
         """
         Write a command to the device, receive the response, and send this
@@ -59,17 +68,14 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
         :rtype: str
         """
         self._querying_lock.acquire()
-        self.terminator = '\r'
         self.write(cmd + self.terminator)
-        self.terminator = '\r\n'
         response = self.read(size=self.MAXIMUM_MESSAGE_SIZE)
         log.debug("received response %s", response)
         self._querying_lock.release()
 
         return self.parse_query(cmd, response)
 
-    @staticmethod
-    def parse_query(command, response):
+    def parse_query(self, command, response):
         """
         After receiving the response from the device, extract the echoed
         command and the device response. Check that the echoed command
@@ -85,9 +91,12 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
         log.debug("Query parser received command %s and response %s",
                   command, response)
 
-        echoed_command = re.search("^.*(?=\r\n)", response)
+        echoed_command = re.search(
+            r"^{0}(?={1})".format(command, self.terminator),
+            response
+        )
         response_from_device = re.search(
-            "(?<=\r\n).*(?=\r\n$)",
+            r"(?<={0}).*(?={0}$)".format(self.terminator),
             response
         )
 
@@ -96,19 +105,15 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
             echoed_command, response_from_device
         )
 
-        if (echoed_command is None) or (response_from_device is None):
-            raise RuntimeError(
-                "Cryomagnetics query parser did not match search string"
-            )
-
-        if command != echoed_command.group(0):
-            raise RuntimeError(
-                "Cryomagnetics query parser did not find echoed command"
+        if echoed_command is None:
+            raise NoEchoedCommandFoundError(
+                "Expected Command: {0} \n"
+                "Device Response: {1}".format(command, response)
             )
 
         if response_from_device.group(0) is None:
-            raise RuntimeError(
-                "I/O with Cryomagnetics instrument did not return a response"
+            raise NoResponseError(
+                "No response found in device response {0}".format(response)
             )
 
         return response_from_device.group(0)

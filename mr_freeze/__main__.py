@@ -5,6 +5,7 @@ starts the application loop
 """
 from mr_freeze.argument_parser import parser
 from mr_freeze.main_loop import MainLoop
+from mr_freeze import log as application_log
 import logging
 import sys
 
@@ -17,7 +18,9 @@ formatter = logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 ch.setFormatter(formatter)
+
 log.addHandler(ch)
+application_log.addHandler(ch)
 
 
 parsed_arguments = parser.parse_args()
