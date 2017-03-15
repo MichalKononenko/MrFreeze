@@ -7,7 +7,7 @@ import logging
 import re
 from instruments.abstract_instruments import Instrument as _Instrument
 from threading import Lock
-from mr_freeze.exceptions import NoEchoedCommandFoundError, NoResponseError
+from mr_freeze.exceptions import NoEchoedCommandFoundError
 
 log = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
 
         :return: The termination character for the device
         """
-        return '\r\n'
+        return '\r'
 
     def query(self, cmd, size=-1):
         """
@@ -92,11 +92,11 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
                   command, response)
 
         echoed_command = re.search(
-            r"^{0}(?={1})".format(command, self.terminator),
+            r"^{0}(?={1})".format(re.escape(command), '\r\n'),
             response
         )
         response_from_device = re.search(
-            r"(?<={0}).*(?={0}$)".format(self.terminator),
+            r"(?<={0}).*(?={0}$)".format('\r\n'),
             response
         )
 
@@ -107,13 +107,12 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
 
         if echoed_command is None:
             raise NoEchoedCommandFoundError(
-                "Expected Command: {0} \n"
-                "Device Response: {1}".format(command, response)
+                "Expected Command: {0}; Device Response: {1}".format(
+                    command, response
+                )
             )
 
-        if response_from_device.group(0) is None:
-            raise NoResponseError(
-                "No response found in device response {0}".format(response)
-            )
+        if response_from_device is None:
+            return None
 
         return response_from_device.group(0)

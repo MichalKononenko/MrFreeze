@@ -39,7 +39,7 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
          the carriage return character (ASCII 10), followed by the newline
          character (ASCII 13)
         """
-        return '\r\n'
+        return '\n'
 
     @property
     def unit(self):
