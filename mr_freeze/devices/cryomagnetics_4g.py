@@ -39,7 +39,7 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
          the carriage return character (ASCII 10), followed by the newline
          character (ASCII 13)
         """
-        return '\r\n'
+        return '\n'
 
     @property
     def unit(self):
@@ -78,28 +78,6 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
 
         return self.parse_current_response(self.query("IOUT?"))
 
-    def query(self, cmd, size=-1):
-        """
-        Query the device
-
-        :param str cmd: The command to send
-        :param int size: The maximum number of characters to be read in the
-            response. This is currently set to the value given in
-            ``MAXIMUM_MESSAGE_SIZE``. It is here only to provide a consistent
-            API for the ``query`` function. This parameter does nothing
-            semantically
-        :return: The response from the device
-        :rtype: str
-        """
-        self._querying_lock.acquire()
-        self.write(cmd + self.terminator)
-
-        response = self.read(size=self.MAXIMUM_MESSAGE_SIZE)
-        log.debug("received response %s", response)
-        self._querying_lock.release()
-
-        return self.parse_query(cmd, response)
-
     @staticmethod
     def parse_current_response(response):
         value_match = re.search("^(\d|\.)*(?=(A|G))", response)
@@ -113,36 +91,3 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
         log.debug("parsed quantity %s from response %s", return_value, unit)
 
         return return_value
-
-    @staticmethod
-    def parse_query(command, response):
-        log.debug("Query parser received command %s and response %s",
-                  command, response)
-
-        echoed_command = re.search("^.*(?=\r\r\n)", response)
-        response_from_device = re.search(
-            "(?<=\r\r\n).*(?=\r\n$)",
-            response
-        )
-
-        if echoed_command is None:
-            raise RuntimeError(
-                "Cryomagnetics query parser did not match search string"
-            )
-
-        if response_from_device is None:
-            response = ''
-        else:
-            response = response_from_device.group(0)
-
-        if command != echoed_command.group(0):
-            raise RuntimeError(
-                "Cryomagnetics query parser did not find echoed command"
-            )
-
-        log.debug(
-            "Query parser parsed echoed command %s and response %s",
-            echoed_command.group(0), response
-        )
-
-        return response

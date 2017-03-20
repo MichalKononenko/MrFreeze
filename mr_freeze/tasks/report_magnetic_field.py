@@ -5,6 +5,9 @@ from time import sleep
 from concurrent.futures import Executor
 from mr_freeze.devices.lakeshore_475 import Lakeshore475
 from mr_freeze.tasks.report_variable_task import ReportVariableTask
+from mr_freeze.exceptions import NoEchoedCommandFoundError
+from quantities import Quantity, gauss
+from numpy import nan
 
 
 class ReportMagneticField(ReportVariableTask):
@@ -24,12 +27,15 @@ class ReportMagneticField(ReportVariableTask):
         self.gauge = gauge
 
     @property
-    def _field_strength(self):
+    def _field_strength(self) -> Quantity:
         """
 
         :return: The measured strength of the magnetic field
         """
-        return self.gauge.field
+        try:
+            return self.gauge.field
+        except NoEchoedCommandFoundError:
+            return nan * gauss
 
     def _wait_for_minimum_time(self) -> None:
         """
@@ -38,10 +44,10 @@ class ReportMagneticField(ReportVariableTask):
         """
         sleep(self._minimum_time_between_samples)
 
-    def task(self, executor: Executor) -> float:
+    def task(self, executor: Executor) -> Quantity:
         """
 
-        :return: The measured pressure
+        :return: The measured magnetic field
         """
         field_strength = self._field_strength
         self._wait_for_minimum_time()
