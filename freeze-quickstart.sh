@@ -1,11 +1,10 @@
 #!/bin/bash
-@echo off
 
 # Display some kickass ASCII art
 echo "
      _     _   ____         _____   ____    _____   _____   _____   _____
     | \   / | |    |       |  ___| |    |  |  ___| |  ___| |___  | |  ___|
-    |  \ /  | | == |       | |__   | -- |  | |___  | |___     / /  | |___ 
+    |  \ /  | | == |       | |__   | == |  | |___  | |___     / /  | |___ 
     | | v | | | |  |       |  __|  | |  |  |  ___| |  ___|   / /   |  ___|
     | |   | | | |\ \    _  | |     | |\ \  | |___  | |___   / /__  | |___
     |_|   |_| |_| \_\  |_| |_|     |_| \_\ |_____| |_____| |_____| |_____|
@@ -26,6 +25,7 @@ virtualEnvName="MrFreeze"
 # Hard-coded parameters ######################################################
 PROGRAM_DIRECTORY=~/git/MrFreeze
 PROGRAM_NAME=mr_freeze
+RESULT_DIRECTORY=$PROGRAM_DIRECTORY
 ##############################################################################
 
 read -p "Enter Gaussmeter Address (default /dev/ttyUSB0): " promptAddress
@@ -64,18 +64,26 @@ CONFIRMATION_TEXT="
     LN2 gauge address:    $LN2_GAUGE_ADDRESS
     Power supply address: $POWER_SUPPLY_ADDRESS 
 
+    Results
+    -------
+
+    Output Directory:     $RESULT_DIRECTORY
+
     is this correct (Y/N): "
 
 read -p "${CONFIRMATION_TEXT}" USER_CONFIRM
 
 function run {
+
+    source /usr/local/bin/virtualenvwrapper.sh
+
     workon ${virtualEnvName}
 
     cd ${PROGRAM_DIRECTORY}
 
-    exec python ${PROGRAM_DIRECTORY}/${PROGRAM_NAME} 
-        --gaussmeter-address=${GAUSSMETER_ADDRESS}
-        --ln2-gauge-address=${LN2_GAUGE_ADDRESS}
+    python ${PROGRAM_DIRECTORY}/${PROGRAM_NAME} \
+        --gaussmeter-address=${GAUSSMETER_ADDRESS} \
+        --ln2-gauge-address=${LN2_GAUGE_ADDRESS} \
         --power-supply-address=${POWER_SUPPLY_ADDRESS}
 }
 
