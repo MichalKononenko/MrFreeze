@@ -3,13 +3,16 @@ Contains an adapter for working with the Cryomagnetics LM 510. This object
 provides a layer of abstraction between the InstrumentKit implementation of
 the device, and a working device
 """
+import logging
 from typing import Optional
 from numpy import nan
 from quantities import Quantity, cm
 from instruments.abstract_instruments import Instrument as _Instrument
-from mr_freeze.exceptions import NoEchoedCommandFoundError
+from mr_freeze.exceptions import DeviceCommunicationError
 from mr_freeze.devices.cryomagnetics_lm510 import CryomagneticsLM510 as \
     _CryomagneticsLM510
+
+log = logging.getLogger(__name__)
 
 
 class CryomagneticsLM510(object):
@@ -94,13 +97,7 @@ class CryomagneticsLM510(object):
 
         :return: A measurement on Channel 1 of the device
         """
-        try:
-            value = self._level_meter.\
-                channel_1_measurement  # type: Optional[Quantity]
-        except NoEchoedCommandFoundError:
-            value = self.null_value
-
-        return value if value is not None else self.null_value
+        return self._measurement(0)
 
     @property
     def channel_2_measurement(self) -> Quantity:
@@ -108,10 +105,23 @@ class CryomagneticsLM510(object):
 
         :return: A measurement on Channel 2 of the device
         """
+        return self._measurement(1)
+
+    def _measurement(self, channel_number):
+        """
+
+        :param int channel_number: The channel on which to measure
+        :return:
+        """
+        channel = self._level_meter[channel_number]
+
         try:
-            value = self._level_meter.\
-                channel_2_measurement  # type: Optional[Quantity]
-        except NoEchoedCommandFoundError:
+            value = channel.measurement
+        except DeviceCommunicationError as error:
+            log.error(
+                "Trying to measure channel %s threw %s",
+                channel_number, error
+            )
             value = self.null_value
 
         return value if value is not None else self.null_value

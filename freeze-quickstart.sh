@@ -15,17 +15,19 @@ echo "
 GAUSSMETER_ADDRESS=/dev/ttyUSB0
 LN2_GAUGE_ADDRESS=/dev/ttyUSB1
 POWER_SUPPLY_ADDRESS=/dev/ttyUSB2
+SAMPLE_INTERVAL=900
 ##############################################################################
 
 # Variables ##################################################################
 promptAddress=""
 virtualEnvName="MrFreeze"
+DESIRED_INTERVAL=""
 ##############################################################################
 
 # Hard-coded parameters ######################################################
 PROGRAM_DIRECTORY=~/git/MrFreeze
 PROGRAM_NAME=mr_freeze
-RESULT_DIRECTORY=$PROGRAM_DIRECTORY
+RESULT_DIRECTORY=${PROGRAM_DIRECTORY}
 ##############################################################################
 
 read -p "Enter Gaussmeter Address (default /dev/ttyUSB0): " promptAddress
@@ -33,22 +35,30 @@ read -p "Enter Gaussmeter Address (default /dev/ttyUSB0): " promptAddress
 # Ask for required parameters
 
 if [ "$promptAddress" != "" ]; then
-    GAUSSMETER_ADDRESS=$promptAddress
+    GAUSSMETER_ADDRESS=${promptAddress}
     promptAddress=""
 fi
 
 read -p "Enter Liquid Nitrogen Address (default /dev/ttyUSB1): " promptAddress
 
 if [ "$promptAddress" != "" ]; then
-    LN2_GAUGE_ADDRESS=$promptAddress
+    LN2_GAUGE_ADDRESS=${promptAddress}
     promptAddress=""
 fi
 
 read -p "Enter Power Supply Address (default /dev/ttyUSB2): " promptAddress
 
 if [ "$promptAddress" != "" ]; then
-    POWER_SUPPLY_ADDRESS=$promptAddress
+    POWER_SUPPLY_ADDRESS=${promptAddress}
     promptAddress=""
+fi
+
+echo "Samples will be obtained every 900 seconds (15 minutes) by default"
+
+read -p "Enter sample interval (leave blank for 15 minutes): " DESIRED_INTERVAL
+
+if [ "$DESIRED_INTERVAL" != "" ]; then
+    SAMPLE_INTERVAL=${DESIRED_INTERVAL}
 fi
 
 CONFIRMATION_TEXT="
@@ -62,7 +72,8 @@ CONFIRMATION_TEXT="
 
     gaussmeter address:   $GAUSSMETER_ADDRESS
     LN2 gauge address:    $LN2_GAUGE_ADDRESS
-    Power supply address: $POWER_SUPPLY_ADDRESS 
+    Power supply address: $POWER_SUPPLY_ADDRESS
+    Sample Interval:      $SAMPLE_INTERVAL s
 
     Results
     -------
@@ -84,10 +95,11 @@ function run {
     python ${PROGRAM_DIRECTORY}/${PROGRAM_NAME} \
         --gaussmeter-address=${GAUSSMETER_ADDRESS} \
         --ln2-gauge-address=${LN2_GAUGE_ADDRESS} \
-        --power-supply-address=${POWER_SUPPLY_ADDRESS}
+        --power-supply-address=${POWER_SUPPLY_ADDRESS} \
+        --sample-interval=${SAMPLE_INTERVAL}
 }
 
-case $USER_CONFIRM in
+case ${USER_CONFIRM} in
     "n")
         exit 1
         ;;
@@ -101,4 +113,3 @@ case $USER_CONFIRM in
         run
         ;;
 esac
-

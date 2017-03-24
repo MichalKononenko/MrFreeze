@@ -23,3 +23,17 @@ class NoResponseError(DeviceCommunicationError):
     Thrown if no response to the command was found in the echo of the device
     """
     pass
+
+
+class DataNotReadyError(DeviceCommunicationError):
+    """
+    Thrown if data that should be ready is not
+    """
+    pass
+
+
+class InvalidChannelError(ValueError):
+    """
+    Thrown if trying to access a channel that does not exist on an instrument
+    """
+    pass

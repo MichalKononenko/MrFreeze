@@ -11,6 +11,7 @@ from mr_freeze.tasks.report_current import ReportCurrent
 from mr_freeze.tasks.report_magnetic_field import ReportMagneticField
 from mr_freeze.tasks.write_csv_values import WriteCSVValues
 from mr_freeze.tasks.get_current_date import GetCurrentDate
+from mr_freeze.tasks.report_liquid_helium_level import ReportLiquidHeliumLevel
 from mr_freeze.tasks.report_liquid_nitrogen_level \
     import ReportLiquidNitrogenLevel
 from mr_freeze.devices.lakeshore_475 import Lakeshore475 as _Lakeshore475
@@ -28,14 +29,14 @@ class MakeMeasurement(AbstractTask):
 
     def __init__(
             self,
-            ln2_gauge: _CryomagneticsLM510,
+            level_meter: _CryomagneticsLM510,
             current_gauge: _Cryomagnetics4G,
             gaussmeter: _Lakeshore475,
             csv_file: _CSVFile,
             timeout: int=10) -> None:
         """
 
-        :param ln2_gauge: The gauge used to measure liquid nitrogen
+        :param level_meter: The gauge used to measure liquid nitrogen
         :param current_gauge: The gauge used to measure electrical current
         going into the cryostat
         :param gaussmeter: The gauge used to measure the magnetic field in
@@ -45,10 +46,13 @@ class MakeMeasurement(AbstractTask):
         :param timeout: The amount of elapsed time in seconds before a task
         will be considered dead. The default is 10 seconds
         """
-        self.ln2_task = ReportLiquidNitrogenLevel(ln2_gauge)
+        self.ln2_task = ReportLiquidNitrogenLevel(level_meter)
         self.current_task = ReportCurrent(current_gauge)
         self.magnetic_field_task = ReportMagneticField(gaussmeter)
         self.get_date_task = GetCurrentDate()
+
+        self.report_helium_task = ReportLiquidHeliumLevel(level_meter)
+
         self.csv_file = csv_file
         self.timeout = timeout
 
@@ -63,9 +67,12 @@ class MakeMeasurement(AbstractTask):
         current = self.current_task(executor)  # type: Future
         magnetic_field = self.magnetic_field_task(executor)  # type: Future
         get_date = self.get_date_task(executor)  # type: Future
+        lhe_level = self.report_helium_task(executor)  # type: Future
 
         values_to_write = map(
-            self._get_result, [get_date, ln2_level, current, magnetic_field]
+            self._get_result, [
+                get_date, ln2_level, lhe_level, current, magnetic_field
+            ]
         )
 
         self.write_values_to_file(values_to_write, executor)
