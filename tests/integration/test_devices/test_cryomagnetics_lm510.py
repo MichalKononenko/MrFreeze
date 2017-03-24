@@ -30,8 +30,8 @@ TESTING_PARAMETERS = {
     "instrument-port": "/dev/ttyUSB0",
     "baud-rate": 9600,
     "gpib-address": 1,
-    "channel-to-measure": 2,
-    "timeout": 5
+    "channel-to-measure": 1,
+    "timeout": 2
 }
 
 
@@ -60,9 +60,9 @@ class TestCryomagneticsLM510(unittest.TestCase):
 class TestChannel1DataReady(TestCryomagneticsLM510):
     def test_channel_1_data_ready(self):
         log.info("Received value of %s from channel 1 data ready method",
-                 self.instrument.channel_1_data_ready)
+                 self.instrument[0].data_ready)
         self.assertIsInstance(
-            self.instrument.channel_1_data_ready, bool
+            self.instrument[0].data_ready, bool
         )
 
 
@@ -71,7 +71,7 @@ class TestChannel2DataReady(TestCryomagneticsLM510):
         log.info("Received value of %s from channel 2 data ready method",
                  self.instrument.channel_2_data_ready)
         self.assertIsInstance(
-            self.instrument.channel_2_data_ready, bool
+            self.instrument[1].data_ready, bool
         )
 
 
@@ -85,24 +85,24 @@ class TestMeasurement(TestCryomagneticsLM510):
     def _test_channel_1(self):
         log.info(
             "Received value of %s from meter channel 1",
-            self.instrument.channel_1_measurement
+            self.instrument[0].measurement
         )
-        self.assertIsInstance(self.instrument.channel_1_measurement, Quantity)
+        self.assertIsInstance(self.instrument[0].measurement, Quantity)
 
     def _test_channel_2(self):
         log.info(
             "Received value of %s from meter channel 2",
-            self.instrument.channel_2_measurement
+            self.instrument[1].measurement
         )
-        self.assertIsInstance(self.instrument.channel_2_measurement, Quantity)
+        self.assertIsInstance(self.instrument[1].measurement, Quantity)
 
 
 class TestAtomicity(TestCryomagneticsLM510):
     def test_atomicity(self):
         response1 = self.instrument.query("*IDN?")
         if TESTING_PARAMETERS["channel-to-measure"] == 1:
-            response2 = self.instrument.channel_1_measurement
+            response2 = self.instrument[0].measurement
         else:
-            response2 = self.instrument.channel_2_measurement
+            response2 = self.instrument[1].measurement
 
         self.assertNotEqual(response1, response2)

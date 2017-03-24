@@ -39,5 +39,16 @@ class TestParseResponse(TestCryomagneticsLM510):
         """
         self.assertEqual(
             parameter[1],
-            CryomagneticsLM510.parse_response(parameter[0])
+            CryomagneticsLM510._Channel.parse_response(parameter[0])
         )
+
+
+class TestGetItem(TestCryomagneticsLM510):
+    def setUp(self):
+        self.instrument = CryomagneticsLM510.open_test()
+
+    def test_getItem_allowed(self):
+        allowed_channel = 0
+        channel = self.instrument[allowed_channel]
+
+        self.assertIsInstance(channel, self.instrument._Channel)
