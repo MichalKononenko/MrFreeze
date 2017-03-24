@@ -9,6 +9,7 @@ from mr_freeze.resources.csv_file import CSVFile
 from mr_freeze.devices.cryomagnetics_lm510_adapter import CryomagneticsLM510
 from mr_freeze.devices.lakeshore_475 import Lakeshore475
 from mr_freeze.devices.cryomagnetics_4g_adapter import Cryomagnetics4G
+from mr_freeze.tasks.report_liquid_helium_level import ReportLiquidHeliumLevel
 from mr_freeze.tasks.report_liquid_nitrogen_level import ReportLiquidNitrogenLevel
 from mr_freeze.tasks.report_magnetic_field import ReportMagneticField
 from mr_freeze.tasks.report_current import ReportCurrent
@@ -27,6 +28,7 @@ class MainLoop(object):
     variables_to_report = [
         GetCurrentDate,
         ReportLiquidNitrogenLevel,
+        ReportLiquidHeliumLevel,
         ReportCurrent,
         ReportMagneticField
     ]
