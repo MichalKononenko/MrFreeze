@@ -45,7 +45,7 @@ class TestTask(TestMakeMeasurement):
     def test_task(self):
         self.task.task(self.executor)
         self.assertEqual(
-            5,
+            6,
             self.executor.submit.call_count
         )
 
