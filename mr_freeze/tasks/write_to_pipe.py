@@ -1,0 +1,32 @@
+# coding=utf-8
+"""
+Describes a task to write the required measurements to a pipe
+"""
+from concurrent.futures import Executor
+from typing import Iterable, Tuple
+from mr_freeze.tasks.abstract_task import AbstractTask
+from mr_freeze.tasks.report_variable_task import ReportVariableTask
+from mr_freeze.resources.measurement_pipe import Pipe
+
+
+class WriteToPipe(AbstractTask):
+    """
+    Describes a task to write data as a JSON file
+    """
+    def __init__(
+            self, location: str, variables: Iterable[
+                Tuple[ReportVariableTask, float]
+            ]
+    ) -> None:
+        self.location = location
+        self.variables = variables
+
+    def task(self, executor: Executor) -> None:
+        """
+
+        :param executor: The executor to be used for running the task
+        """
+        pipe = Pipe.from_file(self.location)
+        data = {var[0].title : var[1] for var in self.variables}
+        pipe.data = data
+        pipe.flush()
