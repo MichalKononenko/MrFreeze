@@ -37,7 +37,7 @@ parser.add_argument(
 parser.add_argument(
     '--json-file', type=str,
     help="The name of the JSON file to which the last measured result will "
-         "be written",
+         "be written. By default, this file is ./pipe.json",
     default=os.path.join(os.curdir, "pipe.json")
 )
 
