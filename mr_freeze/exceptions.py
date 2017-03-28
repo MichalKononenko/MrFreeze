@@ -12,6 +12,13 @@ class NoConfigFileError(FileNotFoundError, IOError):
     pass
 
 
+class BadConfigParameter(ValueError):
+    """
+    Thrown if a configuration parameter was not correctly set
+    """
+    pass
+
+
 class DeviceCommunicationError(RuntimeError, IOError):
     """
     Thrown if a query could not be answered

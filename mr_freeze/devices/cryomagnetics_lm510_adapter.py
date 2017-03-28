@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 """
 Contains an adapter for working with the Cryomagnetics LM 510. This object
 provides a layer of abstraction between the InstrumentKit implementation of
 the device, and a working device
 """
 import logging
-from typing import Optional
+from typing import Optional, List
 from numpy import nan
 from quantities import Quantity, cm
 from instruments.abstract_instruments import Instrument as _Instrument
@@ -26,6 +27,11 @@ class CryomagneticsLM510(object):
     _constructor = _CryomagneticsLM510  # type: _Instrument
 
     null_value = nan * cm
+
+    INDEX_TO_INSTRUMENT_CHANNELS = \
+        _CryomagneticsLM510.INDEX_TO_INSTRUMENT_CHANNELS
+
+    ALLOWED_CHANNELS = INDEX_TO_INSTRUMENT_CHANNELS.values()
 
     @property
     def port_name(self) -> str:
