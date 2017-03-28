@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Contains the main application loop, which iterates for the lifetime of the
 application, and reports the required variables
@@ -6,6 +7,7 @@ import logging
 from time import sleep
 from concurrent.futures import Executor, ThreadPoolExecutor
 from mr_freeze.resources.csv_file import CSVFile
+from mr_freeze.resources.measurement_pipe import Pipe
 from mr_freeze.devices.cryomagnetics_lm510_adapter import CryomagneticsLM510
 from mr_freeze.devices.lakeshore_475 import Lakeshore475
 from mr_freeze.devices.cryomagnetics_4g_adapter import Cryomagnetics4G
@@ -36,7 +38,7 @@ class MainLoop(object):
     should_run = True
 
     def __init__(
-            self, csv_file_path: str, ln2_gauge_port: str,
+            self, csv_file_path: str, pipe_file_path: str, ln2_gauge_port: str,
             magnetometer_port: str, power_supply_port: str,
             time_between_reports: int, task_timeout: int
 
@@ -46,6 +48,7 @@ class MainLoop(object):
         the arguments given in the command line
 
         :param csv_file_path: The path to the output CSV file
+        :param pipe_file_path: The path to the output JSON file
         :param ln2_gauge_port: The name of the port on which the liquid
         nitrogen level meter is connected
         :param magnetometer_port: The name of the port on which the
@@ -58,6 +61,7 @@ class MainLoop(object):
         task dead
         """
         self.csv_file = CSVFile(csv_file_path, self.variables_to_report)
+        self.pipe = Pipe(pipe_file_path)
 
         self.ln2_gauge = CryomagneticsLM510()
         self.ln2_gauge.port_name = ln2_gauge_port
@@ -109,7 +113,7 @@ class MainLoop(object):
             log.debug("Measuring variables")
             task = MakeMeasurement(
                 self.ln2_gauge, self.power_supply, self.magnetometer,
-                self.csv_file, self.timeout
+                self.csv_file, self.pipe, self.timeout
             )
             task(executor).result(self.timeout)
             log.debug("Measurement completed. Waiting for time between "
