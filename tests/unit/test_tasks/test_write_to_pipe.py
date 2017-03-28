@@ -28,3 +28,4 @@ class TestWriteToPipe(unittest.TestCase):
 
         self.assertTrue(self.pipe.flush.called)
         self.assertIsInstance(self.pipe.data, dict)
+        self.assertEqual({ReportLiquidHeliumLevel.title: 3.0}, self.pipe.data)

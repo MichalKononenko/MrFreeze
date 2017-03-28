@@ -26,6 +26,6 @@ class WriteToPipe(AbstractTask):
 
         :param executor: The executor to be used for running the task
         """
-        data = {var[0].title : var[1] for var in self.variables}
+        data = {var[0].title: var[1] for var in self.variables}
         self.pipe.data = data
         self.pipe.flush()
