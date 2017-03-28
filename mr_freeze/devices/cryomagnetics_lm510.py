@@ -140,18 +140,19 @@ class CryomagneticsLM510(AbstractCryomagneticsDevice):
             :rtype: str
             """
             self.instrument.channel_measurement_lock.acquire()
-            sleep(self.instrument.measurement_timeout)
 
-            self._prepare_measurement()
+            try:
+                sleep(self.instrument.measurement_timeout)
 
-            response = self.instrument.query(
-                "MEAS? %d" %
-                self.instrument.INDEX_TO_INSTRUMENT_CHANNELS[
-                    self.channel_number
-                ]
-            )
-
-            self.instrument.channel_measurement_lock.release()
+                self._prepare_measurement()
+                response = self.instrument.query(
+                    "MEAS? %d" %
+                    self.instrument.INDEX_TO_INSTRUMENT_CHANNELS[
+                        self.channel_number
+                    ]
+                )
+            finally:
+                self.instrument.channel_measurement_lock.release()
             return self.parse_response(response)
 
         @staticmethod
