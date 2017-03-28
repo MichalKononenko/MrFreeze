@@ -14,11 +14,11 @@ class WriteToPipe(AbstractTask):
     Describes a task to write data as a JSON file
     """
     def __init__(
-            self, location: str, variables: Iterable[
+            self, pipe: Pipe, variables: Iterable[
                 Tuple[ReportVariableTask, float]
             ]
     ) -> None:
-        self.location = location
+        self.pipe = pipe
         self.variables = variables
 
     def task(self, executor: Executor) -> None:
@@ -26,7 +26,6 @@ class WriteToPipe(AbstractTask):
 
         :param executor: The executor to be used for running the task
         """
-        pipe = Pipe.from_file(self.location)
         data = {var[0].title : var[1] for var in self.variables}
-        pipe.data = data
-        pipe.flush()
+        self.pipe.data = data
+        self.pipe.flush()

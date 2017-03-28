@@ -16,10 +16,10 @@ class TestWriteToPipe(unittest.TestCase):
     def setUp(self):
         self.location = os.devnull
         self.variables = ((ReportLiquidHeliumLevel, 3.0),)
-        self.task = WriteToPipe(self.location, self.variables)
         self.pipe = mock.MagicMock(spec=Pipe)  # type: Pipe
-
         self.executor = mock.MagicMock(spec=Executor)  # type: Executor
+
+        self.task = WriteToPipe(self.pipe, self.variables)
 
     def test_task(self):
         with mock.patch('mr_freeze.tasks.write_to_pipe.Pipe.from_file',
