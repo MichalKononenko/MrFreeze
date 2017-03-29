@@ -4,6 +4,7 @@ Contains a task that makes a single measurement on the current, cryogen
 level, and magnetic field. This task associates these values with a date,
 and writes the numbers down as a single line in a CSV file
 """
+import logging
 from quantities import Quantity
 from typing import Iterable, Any, Optional
 from concurrent.futures import Executor, Future
@@ -23,6 +24,8 @@ from mr_freeze.devices.cryomagnetics_lm510_adapter \
 from mr_freeze.resources.csv_file import CSVFile as _CSVFile
 from mr_freeze.tasks.write_to_pipe import WriteToPipe
 from mr_freeze.resources.measurement_pipe import Pipe
+
+log = logging.getLogger(__name__)
 
 
 class MakeMeasurement(AbstractTask):
@@ -77,11 +80,12 @@ class MakeMeasurement(AbstractTask):
         get_date = self.get_date_task(executor)  # type: Future
         lhe_level = self.report_helium_task(executor)  # type: Future
 
-        values_to_write = map(
-            self._get_result, [
+        values_to_write = [
+            self._get_result(v) for v in
+            [
                 get_date, ln2_level, lhe_level, current, magnetic_field
             ]
-        )
+        ]
 
         self.write_values_to_file(values_to_write, executor)
         self.write_values_to_pipe(values_to_write, executor)
@@ -129,7 +133,11 @@ class MakeMeasurement(AbstractTask):
         :param Future value: The task that is to be evaluated
         :return: The return value of the underlying task
         """
-        return value.result(self.timeout)
+        result = value.result(self.timeout)
+
+        log.debug("Received result %s from task %s" % (result, value))
+
+        return result
 
     @staticmethod
     def _strip_quantity(quantity: Quantity) -> str:

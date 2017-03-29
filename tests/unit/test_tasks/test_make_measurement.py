@@ -1,3 +1,7 @@
+# -*- coding: utf-8
+"""
+Contains unit tests for :mod:`mr_freeze.tasks.make_measurement`
+"""
 import unittest
 import unittest.mock as mock
 import quantities as pq
@@ -49,6 +53,32 @@ class TestTask(TestMakeMeasurement):
         self.assertEqual(
             7,
             self.executor.submit.call_count
+        )
+
+
+class TestWriteValuesMutlipleTimes(TestMakeMeasurement):
+    """
+    Replicates a bug where values written to the file were not the same as
+    those written to the pipe, on account of the values being a generator
+    instead of a list.
+    """
+    def setUp(self):
+        TestMakeMeasurement.setUp(self)
+        self.task.write_values_to_file = mock.MagicMock()
+        self.task.write_values_to_pipe = mock.MagicMock()
+
+    def test_write_values(self):
+        self.task.task(self.executor)
+
+        values_written_to_file = [
+            value for value in self.task.write_values_to_file.call_args[0][0]
+        ]
+        values_written_to_pipe = [
+            value for value in self.task.write_values_to_pipe.call_args[0][0]
+        ]
+
+        self.assertEqual(
+            values_written_to_file, values_written_to_pipe
         )
 
 
