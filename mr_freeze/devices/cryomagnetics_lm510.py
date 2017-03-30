@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Contains an implementation of the cryomagnetics LM 510 liquid cryogen level
 monitor for InstrumentKit
@@ -9,7 +10,6 @@ from mr_freeze.devices.abstract_cryomagnetics_device \
 import quantities as pq
 import re
 import logging
-from time import sleep
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
@@ -103,7 +103,9 @@ class CryomagneticsLM510(AbstractCryomagneticsDevice):
         return self._Channel(channel, self)
 
     class _Channel(object):
-
+        """
+        Represents a measurement channel on the device
+        """
         ALLOWED_CHANNEL_NUMBERS = {0, 1}
 
         _CHANNEL_NUMBER_TO_DATA_READY_BIT_INDEX = {
@@ -140,18 +142,17 @@ class CryomagneticsLM510(AbstractCryomagneticsDevice):
             :rtype: str
             """
             self.instrument.channel_measurement_lock.acquire()
-            sleep(self.instrument.measurement_timeout)
 
-            self._prepare_measurement()
-
-            response = self.instrument.query(
-                "MEAS? %d" %
-                self.instrument.INDEX_TO_INSTRUMENT_CHANNELS[
-                    self.channel_number
-                ]
-            )
-
-            self.instrument.channel_measurement_lock.release()
+            try:
+                self._prepare_measurement()
+                response = self.instrument.query(
+                    "MEAS? %d" %
+                    self.instrument.INDEX_TO_INSTRUMENT_CHANNELS[
+                        self.channel_number
+                    ]
+                )
+            finally:
+                self.instrument.channel_measurement_lock.release()
             return self.parse_response(response)
 
         @staticmethod
@@ -184,7 +185,7 @@ class CryomagneticsLM510(AbstractCryomagneticsDevice):
             """
             if channel not in self.ALLOWED_CHANNEL_NUMBERS:
                 raise InvalidChannelError(
-                    "Tried to set channel to {0}. Allowed channels are {1}".\
+                    "Tried to set channel to {0}. Allowed channels are {1}".
                     format(
                         channel, self.instrument.ALLOWED_CHANNEL_NUMBERS
                     )
@@ -192,13 +193,18 @@ class CryomagneticsLM510(AbstractCryomagneticsDevice):
 
         def _prepare_measurement(self):
             response = self.instrument.query("MEAS {0}".format(
-                self.channel_number
+                self.instrument.INDEX_TO_INSTRUMENT_CHANNELS[
+                    self.channel_number
+                ]
             ))
-
-            sleep(self.instrument.measurement_timeout)
 
             if not self.data_ready:
                 raise DataNotReadyError(
                     "Data not ready. Received response {0}".format(response))
 
             assert self.data_ready
+
+        def __repr__(self):
+            return "%s(channel_number=%s, instrument=%s)" % (
+                self.__class__.__name__, self.channel_number, self.instrument
+            )

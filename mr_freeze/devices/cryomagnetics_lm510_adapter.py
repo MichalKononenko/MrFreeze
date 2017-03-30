@@ -22,7 +22,7 @@ class CryomagneticsLM510(object):
     """
     _port = '/dev/ttyUSB0'  # type: str
     _baud_rate = 9600  # type: int
-    _timeout_in_seconds = 1.0  # type: float
+    _timeout_in_seconds = 3.0  # type: float
     _managed_instance = None  # type: _Instrument
     _constructor = _CryomagneticsLM510  # type: _Instrument
 
@@ -113,7 +113,7 @@ class CryomagneticsLM510(object):
         """
         return self._measurement(1)
 
-    def _measurement(self, channel_number):
+    def _measurement(self, channel_number) -> Quantity:
         """
 
         :param int channel_number: The channel on which to measure

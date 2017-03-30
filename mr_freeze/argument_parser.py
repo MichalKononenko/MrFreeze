@@ -1,3 +1,4 @@
+# -*- coding: utf-8
 """
 Parses command line arguments given to the application
 """
@@ -35,10 +36,17 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '--json-file', type=str,
+    help="The name of the JSON file to which the last measured result will "
+         "be written. By default, this file is ./pipe.json",
+    default=os.path.join(os.curdir, "pipe.json")
+)
+
+parser.add_argument(
     '--task-timeout', type=int,
     help="The maximum amount of time that can elapse before I/O is "
          "considered to have failed",
-    default=10
+    default=30
 )
 
 parser.add_argument(

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Contains integration tests for the cryogen measuring unit
 
@@ -27,7 +28,7 @@ log.addHandler(ch)
 device_log.addHandler(ch)
 
 TESTING_PARAMETERS = {
-    "instrument-port": "/dev/ttyUSB0",
+    "instrument-port": "/dev/ttyUSB1",
     "baud-rate": 9600,
     "gpib-address": 1,
     "channel-to-measure": 1,
@@ -69,7 +70,7 @@ class TestChannel1DataReady(TestCryomagneticsLM510):
 class TestChannel2DataReady(TestCryomagneticsLM510):
     def test_channel_2_data_ready(self):
         log.info("Received value of %s from channel 2 data ready method",
-                 self.instrument.channel_2_data_ready)
+                 self.instrument[1].data_ready)
         self.assertIsInstance(
             self.instrument[1].data_ready, bool
         )

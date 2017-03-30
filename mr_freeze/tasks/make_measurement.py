@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*-
 """
 Contains a task that makes a single measurement on the current, cryogen
 level, and magnetic field. This task associates these values with a date,
 and writes the numbers down as a single line in a CSV file
 """
+import logging
 from quantities import Quantity
-from typing import Iterable
+from typing import Iterable, Any, Optional
 from concurrent.futures import Executor, Future
 from mr_freeze.tasks.abstract_task import AbstractTask
 from mr_freeze.tasks.report_current import ReportCurrent
@@ -20,6 +22,10 @@ from mr_freeze.devices.cryomagnetics_4g_adapter \
 from mr_freeze.devices.cryomagnetics_lm510_adapter \
     import CryomagneticsLM510 as _CryomagneticsLM510
 from mr_freeze.resources.csv_file import CSVFile as _CSVFile
+from mr_freeze.tasks.write_to_pipe import WriteToPipe
+from mr_freeze.resources.measurement_pipe import Pipe
+
+log = logging.getLogger(__name__)
 
 
 class MakeMeasurement(AbstractTask):
@@ -33,6 +39,7 @@ class MakeMeasurement(AbstractTask):
             current_gauge: _Cryomagnetics4G,
             gaussmeter: _Lakeshore475,
             csv_file: _CSVFile,
+            pipe: Pipe,
             timeout: int=10) -> None:
         """
 
@@ -43,6 +50,8 @@ class MakeMeasurement(AbstractTask):
         the cryostat
         :param csv_file: A representation of a comma-separated values (CSV)
         file, to which measured values will be written
+        :param pipe: The JSON file to which the latest sampled values are to be
+        written
         :param timeout: The amount of elapsed time in seconds before a task
         will be considered dead. The default is 10 seconds
         """
@@ -52,6 +61,8 @@ class MakeMeasurement(AbstractTask):
         self.get_date_task = GetCurrentDate()
 
         self.report_helium_task = ReportLiquidHeliumLevel(level_meter)
+
+        self.pipe = pipe
 
         self.csv_file = csv_file
         self.timeout = timeout
@@ -69,17 +80,26 @@ class MakeMeasurement(AbstractTask):
         get_date = self.get_date_task(executor)  # type: Future
         lhe_level = self.report_helium_task(executor)  # type: Future
 
-        values_to_write = map(
-            self._get_result, [
+        values_to_write = [
+            self._get_result(v) for v in
+            [
                 get_date, ln2_level, lhe_level, current, magnetic_field
             ]
-        )
+        ]
 
         self.write_values_to_file(values_to_write, executor)
+        self.write_values_to_pipe(values_to_write, executor)
 
     def write_values_to_file(self, values: Iterable, executor: Executor,
-                             write_values_task=WriteCSVValues):
+                             write_values_task=WriteCSVValues) -> None:
+        """
+        Appends the latest measurements to the CSV file
 
+        :param values: The measured values to write
+        :param executor: The executor to be used when evaluating the task
+        :param write_values_task: The constructor for the task to write the
+        values
+        """
         writeable_values = [
             self._prepare_value_for_writing(value) for value in values
         ]
@@ -89,16 +109,55 @@ class MakeMeasurement(AbstractTask):
         )
         write_values_task(executor).result(self.timeout)
 
-    def _get_result(self, value: Future):
-        return value.result(self.timeout)
+    def write_values_to_pipe(
+            self, values_to_write: Iterable,
+            executor: Executor, task: AbstractTask.__class__=WriteToPipe
+    ) -> None:
+        """
+        Write the latest measurement to the JSON file
+
+        :param values_to_write: The measured values to be written to the file
+        :param executor: The executor to be used in running this task
+        :param task: The task to be created to write the files
+        """
+
+        values_to_write = self._prepare_values_for_pipe(values_to_write)
+
+        writing_task = task(self.pipe, values_to_write)
+        writing_task(executor).result(self.timeout)
+
+    def _get_result(self, value: Future) -> Optional[Any]:
+        """
+        Evaluate a particular task and return the result
+
+        :param Future value: The task that is to be evaluated
+        :return: The return value of the underlying task
+        """
+        result = value.result(self.timeout)
+
+        log.debug("Received result %s from task %s" % (result, value))
+
+        return result
 
     @staticmethod
-    def _strip_quantity(quantity: Quantity):
+    def _strip_quantity(quantity: Quantity) -> str:
         return str(float(quantity))
 
     @staticmethod
-    def _prepare_value_for_writing(value: object):
+    def _prepare_value_for_writing(value: object) -> str:
         if isinstance(value, Quantity):
             return MakeMeasurement._strip_quantity(value)
         else:
             return str(value)
+
+    @staticmethod
+    def _prepare_values_for_pipe(values_to_write) -> Iterable:
+        task_order = [
+            GetCurrentDate,
+            ReportLiquidNitrogenLevel,
+            ReportLiquidHeliumLevel,
+            ReportCurrent,
+            ReportMagneticField
+        ]
+
+        return zip(task_order, values_to_write)

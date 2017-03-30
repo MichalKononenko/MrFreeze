@@ -1,3 +1,4 @@
+# -*- coding: utf-8
 """
 Cryomagnetics does weird stuff with their device interfaces. This is where
 the funky logic is captured
@@ -32,7 +33,6 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
 
     Queries are thread-safe.
     """
-    _querying_lock = Lock()  # type: Lock
 
     MAXIMUM_MESSAGE_SIZE = 140
 
@@ -43,6 +43,8 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
         :param filelike: The communicator to use for making calls to the device
         """
         super().__init__(filelike)
+        self._filelike = filelike
+        self._querying_lock = Lock()  # type: Lock
 
     @property
     def terminator(self):
@@ -70,7 +72,7 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
         self._querying_lock.acquire()
         self.write(cmd + self.terminator)
         response = self.read(size=self.MAXIMUM_MESSAGE_SIZE)
-        log.debug("received response %s", response)
+        log.debug(r"received response %s", response)
         self._querying_lock.release()
 
         return self.parse_query(cmd, response)
@@ -88,8 +90,8 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
         :raises: :exc:`NoEchoedCommandFoundError` if the echo did not find
             a valid command
         """
-        log.debug("Query parser received command %s and response %s",
-                  command, response)
+        log.debug("Query parser for <%s> received command %s and response %s",
+                  self.__repr__(), command, response)
 
         echoed_command = re.search(
             r"^{0}(?={1})".format(re.escape(command), '\r\n'),
@@ -101,8 +103,8 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
         )
 
         log.debug(
-            "Query parser parsed echoed command %s and response %s",
-            echoed_command, response_from_device
+            "Query parser for <%s> parsed echoed command %s and response %s",
+            self.__repr__(), echoed_command, response_from_device
         )
 
         if echoed_command is None:
@@ -116,3 +118,11 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
             return None
 
         return response_from_device.group(0)
+
+    def __repr__(self):
+        """
+
+        :return: A user-friendly representation of this object, showing the
+            calls made to this object's initializer
+        """
+        return "%s(filelike=%s)" % (self.__class__.__name__, self._filelike)
