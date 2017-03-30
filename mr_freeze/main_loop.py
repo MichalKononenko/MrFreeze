@@ -5,6 +5,7 @@ application, and reports the required variables
 """
 import logging
 from time import sleep
+from multiprocessing import cpu_count
 from concurrent.futures import Executor, ThreadPoolExecutor
 from mr_freeze.resources.csv_file import CSVFile
 from mr_freeze.resources.measurement_pipe import Pipe
@@ -89,7 +90,7 @@ class MainLoop(object):
         Write down the title line for the output CSV file, and then start
         the variable measurement loop
         """
-        with ThreadPoolExecutor() as executor:
+        with ThreadPoolExecutor(5 * cpu_count()) as executor:
             self._write_title(executor)
             self._run_loop(executor)
 
