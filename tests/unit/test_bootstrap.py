@@ -5,9 +5,10 @@ Contains unit tests for the bootloader
 import unittest
 import unittest.mock as mock
 from typing import Mapping
-from mr_freeze import BootLoader
+from mr_freeze.bootstrap import BootLoader
 from mr_freeze.exceptions import BadConfigParameter
 from mr_freeze.devices.cryomagnetics_lm510_adapter import CryomagneticsLM510
+
 
 class TestBootloader(unittest.TestCase):
     """

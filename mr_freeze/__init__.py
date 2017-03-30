@@ -1,4 +1,7 @@
+#! -*- coding: utf-8
 """
 Contains the application
 """
-from .bootstrap import BootLoader
+import os
+
+APPLICATION_DIRECTORY = os.path.abspath(os.path.curdir)  # type: str
