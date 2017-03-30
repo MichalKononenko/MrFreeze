@@ -6,13 +6,15 @@ import unittest
 import os
 import json
 import gc
+import quantities as pq
 from mr_freeze.resources.measurement_pipe import Pipe
 
 TEST_PARAMETERS = {
     "location": os.path.join(os.path.curdir, 'pipe-test.json'),
     "pre-populated_test_data": {
         "foo": "bar",
-        "baz": "luhrmann"
+        "baz": "luhrmann",
+        "unit": 4.0 * pq.A
     }
 }
 

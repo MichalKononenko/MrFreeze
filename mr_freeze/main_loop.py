@@ -77,13 +77,12 @@ class MainLoop(object):
 
         self.get_date_task = GetCurrentDate()
 
-    @classmethod
-    def interrupt(cls) -> None:
+    def interrupt(self) -> None:
         """
         Stop the application
         """
         log.info("Caught interrupt signal, exiting")
-        cls.should_run = False
+        self.should_run = False
 
     def run(self) -> None:
         """

@@ -29,3 +29,8 @@ class WriteToPipe(AbstractTask):
         data = {var[0].title: var[1] for var in self.variables}
         self.pipe.data = data
         self.pipe.flush()
+
+    def __repr__(self):
+        return '%s(pipe=%s, variables=%s)' % (
+            self.__class__.__name__, self.pipe, self.variables
+        )

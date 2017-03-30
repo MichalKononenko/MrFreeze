@@ -1,3 +1,4 @@
+# -*- coding: utf-8
 """
 Parses command line arguments given to the application
 """
@@ -45,7 +46,7 @@ parser.add_argument(
     '--task-timeout', type=int,
     help="The maximum amount of time that can elapse before I/O is "
          "considered to have failed",
-    default=10
+    default=30
 )
 
 parser.add_argument(

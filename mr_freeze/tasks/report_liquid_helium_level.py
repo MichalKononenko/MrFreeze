@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Describes a task to report the level of liquid helium in the system
 """
@@ -15,7 +16,7 @@ log = logging.getLogger(__name__)
 
 class ReportLiquidHeliumLevel(ReportVariableTask):
     """
-    The task
+    The task to report the amount of liquid helium in the cryostat
     """
     title = "Liquid Helium Level"
     _minimum_time_between_samples = 0.3
@@ -27,6 +28,7 @@ class ReportLiquidHeliumLevel(ReportVariableTask):
         :param lhe_channel: The channel on the gauge that reports the liquid
             helium level
         """
+        log.debug("Initialized task to report liquid helium %s" % self)
         self.gauge = gauge
         self.lhe_channel = lhe_channel
 

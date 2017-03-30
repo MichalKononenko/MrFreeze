@@ -1,12 +1,19 @@
+# -*- coding: utf-8
 """
 Contains unit tests for :mod:`mr_freeze.devices.abstract_cryomagnetics_device`
 """
 import unittest
+import unittest.mock as mock
+from threading import Lock
 from mr_freeze.devices.abstract_cryomagnetics_device import \
     AbstractCryomagneticsDevice
 
 
 class ConcreteCryomagneticsDevice(AbstractCryomagneticsDevice):
+    """
+    Provides an implementation of a cryomagnetics device to test various
+    methods
+    """
     was_read_called = False
     data_to_read = None
 
@@ -14,17 +21,30 @@ class ConcreteCryomagneticsDevice(AbstractCryomagneticsDevice):
     was_write_called = False
 
     def __init__(self):
+        self._querying_lock = mock.MagicMock(spec=Lock().__class__)
+        self._filelike = mock.MagicMock()
         pass
 
     def read(self, *args, **kwargs):
+        """
+        Increment the read counter and return the data that is supposed to
+        be "read" from the device
+        """
         self.was_read_called = True
         return self.data_to_read
 
     def write(self, message):
+        """
+        Take the message to be written to a device and write it to an
+        instance variable for later inspection
+        """
         self.written_message = message
         self.was_write_called = True
 
     def reset(self):
+        """
+        Clear the messages sent to this device
+        """
         self.was_read_called = False
         self.data_to_read = None
         self.written_message = None
