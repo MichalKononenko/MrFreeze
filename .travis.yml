@@ -31,7 +31,7 @@ install:
   - sudo make install
   - cd ..
   - cd PyQt4_gpl_x11-4.12
-  - python configure-ng.py
+  - python configure.py --confirm-license
   - make
   - sudo make install
   - cd ..
