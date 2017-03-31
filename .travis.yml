@@ -37,7 +37,7 @@ install:
   - python configure.py --confirm-license
   - make
   - sudo make install
-  - cd ..
+  - cd $TRAVIS_BUILD_DIR
   - pip install -r requirements.txt
   - pip install .
 
