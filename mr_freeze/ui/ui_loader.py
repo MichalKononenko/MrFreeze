@@ -41,7 +41,7 @@ class Main(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self, *args, **kwargs)
         self.ui = Ui_MainwindowUI()
         self.ui.setupUi(self)
-        self.command_line_arguments = parser.parse_args()
+        # self.command_line_arguments = parser.parse_args()
         #self.bc = MainLoop()
         self.setWindowIcon(QtGui.QIcon("images/config.png"))
         self.ui.pushButton_4.clicked.connect(self.start)
