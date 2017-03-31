@@ -16,7 +16,7 @@ notifications:
   email: false
 
 before_install:
-  - mkdir install-images
+  - mkdir -p $TRAVIS_BUILD_DIR/install-images
   - cd install-images
   - wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.19.2/sip-4.19.2.tar.gz/download
   - tar -xzf download
