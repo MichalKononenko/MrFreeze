@@ -60,3 +60,29 @@ class TestLevelMeter(TestAdapter):
         self.instrument._managed_instance = self.constructor
         self.assertEqual(self.constructor, self.instrument._level_meter)
         self.assertFalse(self.constructor.open_serial.called)
+
+
+class TestChannelMeasurements(TestAdapter):
+    def setUp(self):
+        TestAdapter.setUp(self)
+        self.instrument._measurement = mock.MagicMock()
+
+    def test_channel_1_measurement(self):
+        result = self.instrument.channel_1_measurement
+        self.assertEqual(
+            self.instrument._measurement(0), result
+        )
+        self.assertEqual(
+            mock.call(0),
+            self.instrument._measurement.call_args
+        )
+
+    def test_channel_2_measurement(self):
+        result = self.instrument.channel_2_measurement
+        self.assertEqual(
+            self.instrument._measurement(1), result
+        )
+        self.assertEqual(
+            mock.call(1),
+            self.instrument._measurement.call_args
+        )

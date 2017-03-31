@@ -1,7 +1,22 @@
+# -*- coding: utf-8 -*-
 """
 Contains the user-defined exceptions that this application will throw if
 something goes wrong
 """
+
+
+class NoConfigFileError(FileNotFoundError, IOError):
+    """
+    Thrown if a configuration file is not found
+    """
+    pass
+
+
+class BadConfigParameter(ValueError):
+    """
+    Thrown if a configuration parameter was not correctly set
+    """
+    pass
 
 
 class DeviceCommunicationError(RuntimeError, IOError):

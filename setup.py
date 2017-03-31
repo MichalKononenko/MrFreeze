@@ -1,3 +1,4 @@
+# -*- coding: utf-8
 """
 Contains python package metadata, allowing mr_freeze to be installed with pip
 """
