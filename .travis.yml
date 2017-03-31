@@ -1,4 +1,4 @@
-sudo: false
+sudo: required
 
 language: python
 
@@ -28,12 +28,12 @@ install:
   - cd sip-4.19.2
   - python configure.py
   - make
-  - make install
+  - sudo make install
   - cd ..
   - cd PyQt4_gpl_x11-4.12
   - python configure-ng.py
   - make
-  - make install
+  - sudo make install
   - cd ..
 
 script:
