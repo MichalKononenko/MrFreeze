@@ -2,7 +2,10 @@ sudo: required
 
 language: python
 
-cache: pip
+cache:
+  - pip
+  - directories:
+    - $TRAVIS_BUILD_DIR/install-images
 
 python:
   - "3.4"
@@ -35,6 +38,8 @@ install:
   - make
   - sudo make install
   - cd ..
+  - pip install -r requirements.txt
+  - pip install .
 
 script:
   - nosetests ./tests/unit --with-coverage # Run unit tests
