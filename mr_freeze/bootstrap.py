@@ -102,7 +102,7 @@ class BootLoader(object):
         except ValueError:
             raise BadConfigParameter(
                 "The value %s read from config is not an integer" %
-                    from_file
+                from_file
             )
 
         if channel_number not in \
@@ -195,7 +195,11 @@ class BootLoader(object):
 
     @property
     def task_timeout(self) -> int:
-        from_file = self.config_file[self._SAMPLE_INTERVAL_KEY]
+        """
+
+        :return: The time that should elapse before a task is considered dead
+        """
+        from_file = self.config_file[self._TASK_TIMEOUT_KEY]
         try:
             return int(from_file)
         except ValueError:
