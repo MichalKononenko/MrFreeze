@@ -12,9 +12,29 @@ python:
 notifications:
   email: false
 
+before_install:
+  - mkdir install-images
+  - cd install-images
+  - wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.19.2/sip-4.19.2.tar.gz/download
+  - tar -xzf download
+  - rm download
+  - wget https://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.12/PyQt4_gpl_x11-4.12.tar.gz/download
+  - tar -xzf download
+  - rm download
+  - cd ..
+
 install:
-  - pip install .
-  - pip install -r requirements.txt
+  - cd install-images
+  - cd sip-4.19.2
+  - python configure.py
+  - make
+  - make install
+  - cd ..
+  - cd PyQt4_gpl_x11-4.12
+  - python configure-ng.py
+  - make
+  - make install
+  - cd ..
 
 script:
   - nosetests ./tests/unit --with-coverage # Run unit tests
