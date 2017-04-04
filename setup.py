@@ -2,7 +2,6 @@
 """
 Contains python package metadata, allowing mr_freeze to be installed with pip
 """
-import os
 from setuptools import setup, find_packages
 
 setup(
