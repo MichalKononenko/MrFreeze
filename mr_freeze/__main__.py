@@ -4,8 +4,11 @@
 Module called when the application is executed. Runs the argument parser and
 starts the application loop
 """
+import sys
+from PyQt4 import QtGui
 from mr_freeze.argument_parser import parser
 from mr_freeze.main_loop import MainLoop
+from mr_freeze.ui.ui_loader import Main
 import logging
 
 log = logging.getLogger(__name__)
@@ -39,4 +42,7 @@ loop = MainLoop(
     parsed_arguments.task_timeout
 )
 
-loop.run()
+app = QtGui.QApplication(sys.argv)
+window = Main()
+window.show()
+sys.exit(app.exec_())

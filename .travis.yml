@@ -1,8 +1,16 @@
-sudo: false
+sudo: required
 
 language: python
 
-cache: pip
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
+
+cache:
+  - pip
+  - directories:
+    - $TRAVIS_BUILD_DIR/install-images
 
 python:
   - "3.4"
@@ -12,9 +20,31 @@ python:
 notifications:
   email: false
 
+before_install:
+  - mkdir -p $TRAVIS_BUILD_DIR/install-images
+  - cd install-images
+  - wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.19.2/sip-4.19.2.tar.gz/download
+  - tar -xzf download
+  - rm download
+  - wget https://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.12/PyQt4_gpl_x11-4.12.tar.gz/download
+  - tar -xzf download
+  - rm download
+  - cd ..
+
 install:
-  - pip install .
+  - cd install-images
+  - cd sip-4.19.2
+  - python configure.py
+  - make
+  - sudo make install
+  - cd ..
+  - cd PyQt4_gpl_x11-4.12
+  - python configure.py --confirm-license
+  - make
+  - sudo make install
+  - cd $TRAVIS_BUILD_DIR
   - pip install -r requirements.txt
+  - pip install .
 
 script:
   - nosetests ./tests/unit --with-coverage # Run unit tests

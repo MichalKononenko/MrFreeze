@@ -2,7 +2,8 @@
 """
 Contains python package metadata, allowing mr_freeze to be installed with pip
 """
-from setuptools import setup
+import os
+from setuptools import setup, find_packages
 
 setup(
     name="mr_freeze",
@@ -11,12 +12,7 @@ setup(
     author="Michal Kononenko",
     author_email="mkononen@uwaterloo.ca",
     url='https://github.com/MichalKononenko/MrFreeze',
-    packages=[
-        "mr_freeze",
-        "mr_freeze.devices",
-        "mr_freeze.resources",
-        "mr_freeze.tasks"
-    ],
+    packages=find_packages(exclude=["tests", "tests.*"]),
     install_requires=[
         "instrumentkit==0.3.1",
         "typing==3.5.3.0"
