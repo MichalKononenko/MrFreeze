@@ -3,6 +3,8 @@
 Contains an implementation of the cryomagnetics LM 510 liquid cryogen level
 monitor for InstrumentKit
 """
+import abc
+from six import add_metaclass
 from mr_freeze.exceptions import InvalidChannelError, DataNotReadyError
 from threading import Lock
 from mr_freeze.devices.abstract_cryomagnetics_device \
@@ -32,8 +34,6 @@ class CryomagneticsLM510(AbstractCryomagneticsDevice):
 
     channel_measurement_lock = Lock()  # type: Lock
     querying_lock = Lock()  # type: Lock
-
-    measurement_timeout = 0.5
 
     UNITS = {
         "cm": pq.cm,
@@ -100,8 +100,16 @@ class CryomagneticsLM510(AbstractCryomagneticsDevice):
         :return: An instance of the channel that can be used to obtain
             measurements
         """
-        return self._Channel(channel, self)
+        if channel == 0:
+            return self._LiquidHeliumChannel(channel, self)
+        elif channel == 1:
+            return self._LiquidNitrogenChannel(channel, self)
+        else:
+            raise InvalidChannelError(
+                "The channel %d is not allowed" % channel
+            )
 
+    @add_metaclass(abc.ABCMeta)
     class _Channel(object):
         """
         Represents a measurement channel on the device
@@ -118,6 +126,19 @@ class CryomagneticsLM510(AbstractCryomagneticsDevice):
 
             self.instrument = instrument
             self.channel_number = channel_number
+
+        @abc.abstractmethod
+        def _prepare_measurement(self):
+            """
+            Method that describes what is to be done in order to prepare a
+            channel so that a query will return a measured value. Such a
+            preparation activity could include querying the instrument to
+            indicate that a measurement needs to be done.
+
+            :raises: :exc:`DataNotReadyError` if something went wrong during
+            data preparation
+            """
+            raise NotImplementedError()
 
         @property
         def data_ready(self):
@@ -191,6 +212,30 @@ class CryomagneticsLM510(AbstractCryomagneticsDevice):
                     )
                 )
 
+        def __repr__(self):
+            return "%s(channel_number=%s, instrument=%s)" % (
+                self.__class__.__name__, self.channel_number, self.instrument
+            )
+
+    class _LiquidNitrogenChannel(_Channel):
+        """
+        Describes a concrete implementation of the channel measurement for
+        liquid helium
+        """
+        def __init__(self, *args, **kwargs):
+            super(self.__class__, self).__init__(*args, **kwargs)
+
+        def _prepare_measurement(self):
+            if not self.data_ready:
+                raise DataNotReadyError("Liquid Nitrogen data not ready")
+
+    class _LiquidHeliumChannel(_Channel):
+        """
+        Describes a concrete implementation for measuring liquid helium
+        """
+        def __init__(self, *args, **kwargs):
+            super(self.__class__, self).__init__(*args, **kwargs)
+
         def _prepare_measurement(self):
             response = self.instrument.query("MEAS {0}".format(
                 self.instrument.INDEX_TO_INSTRUMENT_CHANNELS[
@@ -201,10 +246,3 @@ class CryomagneticsLM510(AbstractCryomagneticsDevice):
             if not self.data_ready:
                 raise DataNotReadyError(
                     "Data not ready. Received response {0}".format(response))
-
-            assert self.data_ready
-
-        def __repr__(self):
-            return "%s(channel_number=%s, instrument=%s)" % (
-                self.__class__.__name__, self.channel_number, self.instrument
-            )

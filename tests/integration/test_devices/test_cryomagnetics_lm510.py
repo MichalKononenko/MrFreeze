@@ -28,11 +28,11 @@ log.addHandler(ch)
 device_log.addHandler(ch)
 
 TESTING_PARAMETERS = {
-    "instrument-port": "/dev/ttyUSB1",
+    "instrument-port": "/dev/ttyUSB0",
     "baud-rate": 9600,
     "gpib-address": 1,
-    "channel-to-measure": 1,
-    "timeout": 2
+    "channel-to-measure": 2,
+    "timeout": 0.3
 }
 
 
