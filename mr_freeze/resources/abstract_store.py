@@ -80,7 +80,7 @@ class Store(object):
         self.executor = variable_update_executor
         self._variables = {}
 
-    def __getitem__(self, item: Variable.__class__) -> V:
+    def __getitem__(self, item: Variable.__class__) -> Variable:
         """
 
         :param item:
