@@ -6,7 +6,7 @@ and writes the numbers down as a single line in a CSV file
 """
 import logging
 from quantities import Quantity
-from typing import Iterable, Any, Optional
+from typing import Iterable, Any, Optional, List
 from concurrent.futures import Executor, Future
 from mr_freeze.tasks.abstract_task import AbstractTask
 from mr_freeze.tasks.report_current import ReportCurrent
@@ -16,12 +16,14 @@ from mr_freeze.tasks.get_current_date import GetCurrentDate
 from mr_freeze.tasks.report_liquid_helium_level import ReportLiquidHeliumLevel
 from mr_freeze.tasks.report_liquid_nitrogen_level \
     import ReportLiquidNitrogenLevel
+from mr_freeze.tasks.update_store import UpdateStore
 from mr_freeze.devices.lakeshore_475 import Lakeshore475 as _Lakeshore475
 from mr_freeze.devices.cryomagnetics_4g_adapter \
     import Cryomagnetics4G as _Cryomagnetics4G
 from mr_freeze.devices.cryomagnetics_lm510_adapter \
     import CryomagneticsLM510 as _CryomagneticsLM510
 from mr_freeze.resources.csv_file import CSVFile as _CSVFile
+from mr_freeze.resources.application_state import Store
 from mr_freeze.tasks.write_to_pipe import WriteToPipe
 from mr_freeze.resources.measurement_pipe import Pipe
 
@@ -40,6 +42,7 @@ class MakeMeasurement(AbstractTask):
             gaussmeter: _Lakeshore475,
             csv_file: _CSVFile,
             pipe: Pipe,
+            store: Store,
             timeout: int=10) -> None:
         """
 
@@ -63,6 +66,7 @@ class MakeMeasurement(AbstractTask):
         self.report_helium_task = ReportLiquidHeliumLevel(level_meter)
 
         self.pipe = pipe
+        self.store = store
 
         self.csv_file = csv_file
         self.timeout = timeout
@@ -89,6 +93,7 @@ class MakeMeasurement(AbstractTask):
 
         self.write_values_to_file(values_to_write, executor)
         self.write_values_to_pipe(values_to_write, executor)
+        self.write_values_to_store(values_to_write, executor)
 
     def write_values_to_file(self, values: Iterable, executor: Executor,
                              write_values_task=WriteCSVValues) -> None:
@@ -125,6 +130,24 @@ class MakeMeasurement(AbstractTask):
 
         writing_task = task(self.pipe, values_to_write)
         writing_task(executor).result(self.timeout)
+
+    def write_values_to_store(self, values_to_write: List, executor: Executor):
+        """
+
+        :param values_to_write: The values to be written to the store
+        :param executor: The Executor on which the store update task will be
+            executed
+        :return:
+        """
+        update_values_task = UpdateStore(
+            self.store,
+            new_lhe_level=values_to_write[2],
+            new_current=values_to_write[3],
+            new_ln2_level=values_to_write[1],
+            new_magnetic_field=values_to_write[4]
+        )
+        task = update_values_task(executor)
+        task.result(self.timeout)
 
     def _get_result(self, value: Future) -> Optional[Any]:
         """

@@ -17,6 +17,7 @@ from mr_freeze.tasks.report_liquid_nitrogen_level \
     import ReportLiquidNitrogenLevel
 from mr_freeze.tasks.write_csv_values import WriteCSVValues
 from mr_freeze.resources.measurement_pipe import Pipe
+from mr_freeze.resources.application_state import Store
 
 
 class TestMakeMeasurement(unittest.TestCase):
@@ -27,10 +28,11 @@ class TestMakeMeasurement(unittest.TestCase):
         self.csv_file = mock.MagicMock(spec=CSVFile)
         self.executor = mock.MagicMock(spec=Executor)  # type: Executor
         self.pipe = mock.MagicMock(spec=Pipe)  # type: Pipe
+        self.store = dict()  # type: Store
 
         self.task = MakeMeasurement(
             self.ln2_gauge, self.magnetometer, self.power_supply,
-            self.csv_file, self.pipe
+            self.csv_file, self.pipe, self.store
         )
 
 
@@ -51,7 +53,7 @@ class TestTask(TestMakeMeasurement):
     def test_task(self):
         self.task.task(self.executor)
         self.assertEqual(
-            7,
+            8,
             self.executor.submit.call_count
         )
 
