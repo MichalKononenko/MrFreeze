@@ -6,7 +6,7 @@ and writes the numbers down as a single line in a CSV file
 """
 import logging
 from quantities import Quantity
-from typing import Iterable, Any, Optional
+from typing import Iterable, Any, Optional, List
 from concurrent.futures import Executor, Future
 from mr_freeze.tasks.abstract_task import AbstractTask
 from mr_freeze.tasks.report_current import ReportCurrent
@@ -22,8 +22,13 @@ from mr_freeze.devices.cryomagnetics_4g_adapter \
 from mr_freeze.devices.cryomagnetics_lm510_adapter \
     import CryomagneticsLM510 as _CryomagneticsLM510
 from mr_freeze.resources.csv_file import CSVFile as _CSVFile
+from mr_freeze.resources.application_state import Store
 from mr_freeze.tasks.write_to_pipe import WriteToPipe
 from mr_freeze.resources.measurement_pipe import Pipe
+from mr_freeze.resources.application_state import LiquidHeliumLevel
+from mr_freeze.resources.application_state import LiquidNitrogenLevel
+from mr_freeze.resources.application_state import Current
+from mr_freeze.resources.application_state import MagneticField
 
 log = logging.getLogger(__name__)
 
@@ -32,6 +37,9 @@ class MakeMeasurement(AbstractTask):
     """
     Run a single measurement, and write the results
     """
+    VARIABLE_ORDER = [
+        None, LiquidNitrogenLevel, LiquidHeliumLevel, Current, MagneticField
+    ]
 
     def __init__(
             self,
@@ -40,6 +48,7 @@ class MakeMeasurement(AbstractTask):
             gaussmeter: _Lakeshore475,
             csv_file: _CSVFile,
             pipe: Pipe,
+            store: Store,
             timeout: int=10) -> None:
         """
 
@@ -63,6 +72,7 @@ class MakeMeasurement(AbstractTask):
         self.report_helium_task = ReportLiquidHeliumLevel(level_meter)
 
         self.pipe = pipe
+        self.store = store
 
         self.csv_file = csv_file
         self.timeout = timeout
@@ -89,6 +99,7 @@ class MakeMeasurement(AbstractTask):
 
         self.write_values_to_file(values_to_write, executor)
         self.write_values_to_pipe(values_to_write, executor)
+        self.write_values_to_store(values_to_write)
 
     def write_values_to_file(self, values: Iterable, executor: Executor,
                              write_values_task=WriteCSVValues) -> None:
@@ -125,6 +136,15 @@ class MakeMeasurement(AbstractTask):
 
         writing_task = task(self.pipe, values_to_write)
         writing_task(executor).result(self.timeout)
+
+    def write_values_to_store(self, values_to_write: List):
+        """
+
+        :param values_to_write: The values to be written to the store
+        :return:
+        """
+        for index in range(0, len(values_to_write)):
+            self.store[self.VARIABLE_ORDER[index]] = values_to_write[index]
 
     def _get_result(self, value: Future) -> Optional[Any]:
         """

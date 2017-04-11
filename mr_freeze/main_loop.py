@@ -19,6 +19,7 @@ from mr_freeze.tasks.report_current import ReportCurrent
 from mr_freeze.tasks.write_csv_title import WriteCSVTitle
 from mr_freeze.tasks.make_measurement import MakeMeasurement
 from mr_freeze.tasks.get_current_date import GetCurrentDate
+from mr_freeze.resources.application_state import Store
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
@@ -78,6 +79,9 @@ class MainLoop(object):
 
         self.get_date_task = GetCurrentDate()
 
+        self.executor = ThreadPoolExecutor(5 * cpu_count())
+        self.store = Store(self.executor)
+
     def interrupt(self) -> None:
         """
         Stop the application
@@ -90,9 +94,8 @@ class MainLoop(object):
         Write down the title line for the output CSV file, and then start
         the variable measurement loop
         """
-        with ThreadPoolExecutor(5 * cpu_count()) as executor:
-            self._write_title(executor)
-            self._run_loop(executor)
+        self._write_title(self.executor)
+        self._run_loop(self.executor)
 
     def _write_title(self, executor: Executor) -> None:
         """

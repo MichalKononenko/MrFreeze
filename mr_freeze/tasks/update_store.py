@@ -46,6 +46,7 @@ class UpdateStore(AbstractTask):
             variable: Variable, value: Quantity, store: Store) -> None:
         """
         Update the variable if the variable is not None
+
         :param Variable variable: The variable to update
         :param store:
         :return:
