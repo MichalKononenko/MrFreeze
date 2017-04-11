@@ -13,10 +13,17 @@ from PyQt4 import QtGui
 import json
 from time import sleep
 
+from concurrent.futures import ThreadPoolExecutor
+from multiprocessing import cpu_count
+from quantities import Quantity
 
 # IMPORTS For Gui setUp
 from mr_freeze.ui.user_interface import Ui_MainwindowUI
-from mr_freeze.argument_parser import parser
+from mr_freeze.resources.application_state import Store
+from mr_freeze.resources.application_state import LiquidHeliumLevel
+from mr_freeze.resources.application_state import LiquidNitrogenLevel
+from mr_freeze.resources.application_state import MagneticField
+from mr_freeze.resources.application_state import Current
 
 ############################ IMPORTS For Gui Controller#############################
 #from mr_freeze.main_loop import MainLoop
@@ -37,19 +44,21 @@ class Main(QtGui.QMainWindow):
     """
     Contains the connected UI application
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, store: Store, *args, **kwargs):
         QtGui.QMainWindow.__init__(self, *args, **kwargs)
         self.ui = Ui_MainwindowUI()
         self.ui.setupUi(self)
-        # self.command_line_arguments = parser.parse_args()
-        #self.bc = MainLoop()
         self.setWindowIcon(QtGui.QIcon("images/config.png"))
         self.ui.pushButton_4.clicked.connect(self.start)
         self.ui.pushButton_5.clicked.connect(self.stop)
         self.ui.pushButton.clicked.connect(self.set_main_current)
         self.ui.pushButton_2.clicked.connect(self.sweep_current)
         self.ui.pushButton_3.clicked.connect(self.set_log_interval)
-        self.interrupt = False     
+        self.interrupt = False
+
+        self.store = store
+
+        self._add_listeners(self.store)
 
     def start(self):
         """
@@ -60,13 +69,6 @@ class Main(QtGui.QMainWindow):
 
         while self.interrupt:  # This constructs an infinite loop
             print("You enter")
-            
-            data = self.get_json()
-            self.ui.lcdNumber.display(self.get_num(data['Current']))
-            self.ui.lcdNumber_5.display(self.get_num(data['Liquid Nitrogen Level']))
-            self.ui.lcdNumber_3.display(self.get_num(data['Magnetic Field']))
-            if not self.interrupt:
-                break
             QtGui.qApp.processEvents()
             sleep(5)
             
@@ -77,10 +79,7 @@ class Main(QtGui.QMainWindow):
         Stop the application
         """
         print("Stop logging!!!")
-        self.interrupt = False
-        
-        #self.bc.interrupt()
-    
+
     def set_main_current(self):
         print("set_main_current")
     
@@ -98,6 +97,7 @@ class Main(QtGui.QMainWindow):
         with open('pipe.json') as data_file:    
             data = json.load(data_file)
         return data
+
     def closeEvent(self, event):
 
         quit_msg = "Are you sure you want to exit CSMC?"
@@ -108,8 +108,36 @@ class Main(QtGui.QMainWindow):
         else:
             event.ignore()
 
+    def _handle_lhe_level_change(self, new_value: Quantity) -> None:
+        self.ui.liquid_helium_display.display(float(new_value))
+
+    def _handle_ln2_level_change(self, new_value: Quantity) -> None:
+        self.ui.liquid_nitrogen_display.display(float(new_value))
+
+    def _handle_b_field_change(self, new_value: Quantity) -> None:
+        self.ui.magnetic_field_display.display(float(new_value))
+
+    def _handle_current_change(self, new_value: Quantity) -> None:
+        self.ui.main_current_display.display(float(new_value))
+
+    def _add_listeners(self, store: Store) -> None:
+        """
+        Hook up the handlers to the store in order to handle changes in the
+        store
+
+        :param store: The store to use to update the listeners
+        :return:
+        """
+        store[LiquidHeliumLevel].listeners.add(self._handle_lhe_level_change)
+        store[LiquidNitrogenLevel].listeners.add(self._handle_ln2_level_change)
+        store[MagneticField].listeners.add(self._handle_b_field_change)
+        store[Current].listeners.add(self._handle_current_change)
+
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    window = Main()
-    window.show()
-    sys.exit(app.exec_())
+
+    with ThreadPoolExecutor(5 * cpu_count()) as executor:
+        store = Store(executor)
+        window = Main(store)
+        window.show()
+        sys.exit(app.exec_())
