@@ -48,8 +48,7 @@ class UpdateStore(AbstractTask):
         Update the variable if the variable is not None
 
         :param Variable variable: The variable to update
-        :param store:
-        :return:
+        :param store: The store to update
         """
         if variable is not None:
             store[variable] = value
