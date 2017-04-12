@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 """
 Manages a cache of the last measured variable. Capable of notifying other
 resources that a variable changed

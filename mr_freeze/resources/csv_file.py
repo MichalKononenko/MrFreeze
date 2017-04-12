@@ -20,6 +20,9 @@ class CSVFile(object):
         self._file_has_titles = False
 
     def write_titles(self):
+        """
+        Write the title line to the CSV file
+        """
         values_to_write = self.delimiter.join(
             [variable.title for variable in self.variables]
         ) + os.linesep
@@ -28,6 +31,10 @@ class CSVFile(object):
             file.write(values_to_write.encode())
 
     def write_values(self, values: Iterable):
+        """
+
+        :param values: The values to write
+        """
         values_to_write = self.delimiter.join(
             [str(value) for value in values]
         ) + os.linesep

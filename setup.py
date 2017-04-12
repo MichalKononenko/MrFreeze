@@ -14,6 +14,7 @@ setup(
     packages=find_packages(exclude=["tests", "tests.*"]),
     install_requires=[
         "instrumentkit==0.3.1",
-        "typing==3.5.3.0"
+        "typing==3.5.3.0",
+        "schedule==0.4.2"
     ]
 )
