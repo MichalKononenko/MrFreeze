@@ -62,17 +62,9 @@ Report Magnetic Field
     :members:
     :undoc-members:
 
-Write CSV Title
-~~~~~~~~~~~~~~~
+Update Store
+~~~~~~~~~~~~
 
-.. automodule:: mr_freeze.tasks.write_csv_title
+.. automodule:: mr_freeze.tasks.update_store
     :members:
     :undoc-members:
-
-Write CSV Values
-~~~~~~~~~~~~~~~~
-
-.. automodule:: mr_freeze.tasks.write_csv_values
-    :members:
-    :undoc-members:
-

@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="mr_freeze",
-    version="1.0",
+    version="2.0",
     description="Reports measured variables from a cryostat",
     author="Michal Kononenko",
     author_email="mkononen@uwaterloo.ca",
