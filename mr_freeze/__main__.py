@@ -6,6 +6,7 @@ starts the application loop
 """
 from mr_freeze.bootloader import Application
 import logging
+import sys
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
@@ -16,4 +17,6 @@ logging.basicConfig(
 )
 
 app = Application()
-app.start()
+exit_code = app.start()
+
+sys.exit(exit_code)

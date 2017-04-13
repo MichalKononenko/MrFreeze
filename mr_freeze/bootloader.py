@@ -4,6 +4,7 @@ Module responsible for starting the application.
 """
 import logging
 import sys
+from PyQt4 import QtGui
 from multiprocessing import cpu_count
 from typing import Iterable
 from concurrent.futures import ThreadPoolExecutor
@@ -26,7 +27,7 @@ class Application(object):
     _executor = ThreadPoolExecutor(5 * cpu_count())
     _store = Store(_executor)
 
-    def __init__(self, command_line_arguments: Iterable[str]=sys.argv):
+    def __init__(self, command_line_arguments: Iterable[str]=sys.argv[1:]):
         self.config_file_parser = ConfigFileParser()
         self._cli_arguments = parser.parse_args(command_line_arguments)
 
@@ -53,23 +54,29 @@ class Application(object):
         )
         loop.run()
 
-    def start_gui(self, gui_builder: GUI.__class__=GUI) -> None:
+    def start_gui(self, gui_builder: GUI.__class__=GUI) -> int:
         """
         Start the application GUI
 
         :param gui_builder: The class to use to start the GUI
         """
+        qt_app = QtGui.QApplication(sys.argv)
         gui = gui_builder(self._store)
         gui.show()
+        return qt_app.exec_()
 
-    def start(self):
+    def start(self) -> int:
         """
         Start the measurement loop and the GUI
 
-        :return:
+        :return: The exit code for the application
         """
-        self.start_gui()
-        self.start_loop()
+        if not self._gui_only_mode:
+            self.start_loop()
+
+        exit_code = self.start_gui()
+
+        return exit_code
 
     @property
     def _gaussmeter_address(self) -> str:
@@ -121,6 +128,17 @@ class Application(object):
             )
 
         return self.config_file_parser.power_supply_address
+
+    @property
+    def _gui_only_mode(self) -> bool:
+        """
+
+        :return: True if the application was started in GUI only mode
+        """
+        try:
+            return self._cli_arguments.gui_only_mode
+        except AttributeError:
+            return False
 
     @staticmethod
     def _make_argument_not_found_message(argument, config_file):

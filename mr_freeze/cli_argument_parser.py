@@ -57,3 +57,10 @@ parser.add_argument(
          "minutes)",
     default=loader.sample_interval
 )
+
+parser.add_argument(
+    '--gui-only-mode', type=bool,
+    help="Used only for testing, run if the GUI needs to be run without "
+         "starting the measurement loop",
+    default=False
+)
