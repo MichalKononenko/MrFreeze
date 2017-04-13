@@ -77,7 +77,7 @@ class TestMeasurementDeadlockManagement(TestCryomagneticsLM510):
     def test_deadlock_management(self):
         with mock.patch(
                 'mr_freeze.devices.cryomagnetics_lm510.CryomagneticsLM510.'
-                '_Channel._prepare_measurement',
+                '_LiquidHeliumChannel._prepare_measurement',
                 side_effect=Exception("Something was thrown")
         ) as mock_method:
             self.assertRaises(
