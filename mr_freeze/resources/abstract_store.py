@@ -64,7 +64,10 @@ class Variable(object):
         for listener_ref in self.listeners:
             meth = listener_ref()
             if meth is not None:
+                log.debug("Running listener %s for variable %s", meth, self)
                 self._executor.submit(meth, self._value)
+            else:
+                log.debug("Listener reference %s is None", listener_ref)
 
     def __repr__(self):
         return "%s(initial_value=%s)" % (
