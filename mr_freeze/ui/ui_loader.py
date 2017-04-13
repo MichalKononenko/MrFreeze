@@ -125,15 +125,31 @@ class Main(QtGui.QMainWindow):
             event.ignore()
 
     def _handle_lhe_level_change(self, new_value: Quantity) -> None:
+        log.debug(
+            "UI received Handle LHe Change event. New value is %d",
+            new_value
+        )
         self.ui.liquid_helium_display.display(float(new_value))
 
     def _handle_ln2_level_change(self, new_value: Quantity) -> None:
+        log.debug(
+            "UI received LN2 change event. New value is %d",
+            new_value
+        )
         self.ui.liquid_nitrogen_display.display(float(new_value))
 
     def _handle_b_field_change(self, new_value: Quantity) -> None:
+        log.debug(
+            "UI received B field change event. New value is %d",
+            new_value
+        )
         self.ui.magnetic_field_display.display(float(new_value))
 
     def _handle_current_change(self, new_value: Quantity) -> None:
+        log.debug(
+            "UI received Current change event. New value is %d",
+            new_value
+        )
         self.ui.main_current_display.display(float(new_value))
 
     def _handle_logging_interval_change(self, new_value: Quantity) -> None:
@@ -154,12 +170,6 @@ class Main(QtGui.QMainWindow):
         store[LoggingInterval].listeners.add(
             self._handle_logging_interval_change
         )
-
-    def _start_logging(self) -> None:
-        """
-
-        Start logging data
-        """
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
