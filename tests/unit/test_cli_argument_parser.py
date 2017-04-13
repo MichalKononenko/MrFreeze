@@ -9,7 +9,7 @@ class TestArgumentParser(unittest.TestCase):
     def test_parsing(self):
         string_to_parse = "--gaussmeter-address=/dev/ttyUSB0"
 
-        result = parser.parse_args(string_to_parse)
+        result = parser.parse_args([string_to_parse])
         self.assertIsNotNone(
             result.gaussmeter_address
         )

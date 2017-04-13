@@ -27,7 +27,7 @@ class TestConfigFileName(TestBootloader):
         TestBootloader.setUp(self)
         self.expected_correct_path = self.loader.CONFIG_FILE_LOCATIONS[0]
 
-    @mock.patch('mr_freeze.bootstrap.os.path.isfile', return_value=True)
+    @mock.patch('os.path.isfile', return_value=True)
     def test_config_file_first_is_true(self, mock_file_predicate):
         self.assertEqual(
             self.expected_correct_path,
@@ -38,7 +38,7 @@ class TestConfigFileName(TestBootloader):
             mock_file_predicate.call_args
         )
 
-    @mock.patch('mr_freeze.bootstrap.os.path.isfile', return_value=False)
+    @mock.patch('os.path.isfile', return_value=False)
     def test_config_no_file(self, mock_file_predicate):
         self.assertIsNone(self.loader.config_file_name)
         self.assertTrue(
