@@ -4,7 +4,10 @@ Module responsible for starting the application.
 """
 import logging
 import sys
+import time
+import schedule
 from PyQt4 import QtGui
+from PyQt4.QtCore import QThread
 from multiprocessing import cpu_count
 from typing import Iterable
 from concurrent.futures import ThreadPoolExecutor
@@ -54,13 +57,15 @@ class Application(object):
         )
         loop.run()
 
-    def start_gui(self, gui_builder: GUI.__class__=GUI) -> int:
+    def start_gui(self, gui_builder: GUI.__class__=GUI,
+                  qt_app_class=QtGui.QApplication.__class__) -> int:
         """
         Start the application GUI
 
         :param gui_builder: The class to use to start the GUI
+        :param qt_app_class: The class to use to build the Qt application
         """
-        qt_app = QtGui.QApplication(sys.argv)
+        qt_app = qt_app_class(sys.argv)
         gui = gui_builder(self._store)
         gui.show()
         return qt_app.exec_()
@@ -71,8 +76,9 @@ class Application(object):
 
         :return: The exit code for the application
         """
+        loop_thread = self._MeasurementLoopThread()
         if not self._gui_only_mode:
-            self.start_loop()
+            loop_thread.start()
 
         exit_code = self.start_gui()
 
@@ -161,3 +167,17 @@ class Application(object):
         meter = Cryomagnetics4G()
         meter.port_name = self._power_supply_address
         return meter
+
+    class _MeasurementLoopThread(QThread):
+        """
+        Runs the measurement loop in a separate thread
+        """
+        def run(self) -> None:
+            """
+            Run the scheduler
+            :return:
+            """
+            log.info("Starting instrument measurement thread")
+            while True:
+                schedule.run_pending()
+                time.sleep(1)
