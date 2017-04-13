@@ -1,70 +1,71 @@
-import os
+# coding=utf-8
+"""
+Contains unit tests for the csv logger
+"""
 import unittest
 import unittest.mock as mock
-from mr_freeze.tasks.report_variable_task import ReportVariableTask
-from mr_freeze.resources.csv_file import CSVFile
-from datetime import datetime
-
-TESTING_PARAMETERS = {
-    "file-name": os.path.join(os.curdir, 'test.csv')
-}
+import os
+import csv
+from concurrent.futures import Executor
+from mr_freeze.resources.application_state import Store, LoggingInterval
+from mr_freeze.resources.csv_file import CSVLogger
 
 
-class TestCSVFile(unittest.TestCase):
-    mock_variable_1 = mock.MagicMock(spec=ReportVariableTask)
-    mock_variable_1.title = "Variable 1"
-
-    mock_variable_2 = mock.MagicMock(spec=ReportVariableTask)
-    mock_variable_2.title = "Variable 2"
-
+class TestCSVLogger(unittest.TestCase):
     def setUp(self):
-        self.variables = (self.mock_variable_1, self.mock_variable_2)
-
-        self.file = CSVFile(TESTING_PARAMETERS["file-name"], self.variables)
-
-    @staticmethod
-    def read_csv_file():
-        with open(TESTING_PARAMETERS["file-name"], mode='rb') as file:
-            return os.linesep.join([line.decode() for line in file])
+        self.file_path = os.path.join(os.curdir, 'file.csv')
+        self.executor = mock.MagicMock(spec=Executor)  # type: Executor
+        self.store = Store(self.executor)
+        self.scheduler = mock.MagicMock()
+        self.logger = CSVLogger(
+            self.store, self.file_path, self.executor
+        )
 
     def tearDown(self):
-        if os.path.exists(TESTING_PARAMETERS["file-name"]):
-            os.remove(TESTING_PARAMETERS["file-name"])
+        if os.path.isfile(self.file_path):
+            os.remove(self.file_path)
 
 
-class TestWriteTitles(TestCSVFile):
+class TestStartLogging(TestCSVLogger):
+    def test_start_logging(self):
+        self.logger.start_logging(self.scheduler)
+        self.assertTrue(
+            self.scheduler.every(self.store[LoggingInterval].value).minutes.do(
+                self.logger.write_values
+            ).tag.called
+        )
+
+
+class TestStopLogging(TestCSVLogger):
+    def test_stop_logging(self):
+        self.logger.stop_logging(self.scheduler)
+        self.assertTrue(
+            self.scheduler.clear.called
+        )
+
+
+class TestWriteTitles(TestCSVLogger):
+    """
+    Tests that titles are successfully written
+    """
     def test_write_titles(self):
-        self.file.write_titles()
-        written_data = self.read_csv_file()
+        self.logger.write_titles()
+
+        with open(self.file_path) as file:
+            reader = csv.DictReader(file)
+            names = reader.fieldnames
 
         self.assertEqual(
-            self.expected_data,
-            written_data
+            set(names), set(self.logger.VARIABLE_TITLES.values())
         )
 
-    @property
-    def expected_data(self):
-        return self.file.delimiter.join(
-            (variable.title for variable in self.variables)
-        ) + os.linesep
 
-
-class TestWriteValues(TestCSVFile):
-    def setUp(self):
-        TestCSVFile.setUp(self)
-        self.values = (1, 2, datetime.now())
-
+class TestWriteValues(TestCSVLogger):
+    """
+    Tests that values are successfully written to the CSV file
+    """
     def test_write_values(self):
-        self.file.write_values(self.values)
-        written_data = self.read_csv_file()
+        self.logger.write_titles()
+        self.logger.write_values()
 
-        self.assertEqual(
-            self.expected_data,
-            written_data
-        )
-
-    @property
-    def expected_data(self):
-        return self.file.delimiter.join(
-            (str(value) for value in self.values)
-        ) + os.linesep
+        self.assertTrue(os.path.isfile(self.file_path))

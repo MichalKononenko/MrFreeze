@@ -5,13 +5,11 @@ level, and magnetic field. This task associates these values with a date,
 and writes the numbers down as a single line in a CSV file
 """
 import logging
-from quantities import Quantity
-from typing import Iterable, Any, Optional, List
+from typing import Any, Optional, List
 from concurrent.futures import Executor, Future
 from mr_freeze.tasks.abstract_task import AbstractTask
 from mr_freeze.tasks.report_current import ReportCurrent
 from mr_freeze.tasks.report_magnetic_field import ReportMagneticField
-from mr_freeze.tasks.write_csv_values import WriteCSVValues
 from mr_freeze.tasks.get_current_date import GetCurrentDate
 from mr_freeze.tasks.report_liquid_helium_level import ReportLiquidHeliumLevel
 from mr_freeze.tasks.report_liquid_nitrogen_level \
@@ -22,10 +20,7 @@ from mr_freeze.devices.cryomagnetics_4g_adapter \
     import Cryomagnetics4G as _Cryomagnetics4G
 from mr_freeze.devices.cryomagnetics_lm510_adapter \
     import CryomagneticsLM510 as _CryomagneticsLM510
-from mr_freeze.resources.csv_file import CSVFile as _CSVFile
 from mr_freeze.resources.application_state import Store
-from mr_freeze.tasks.write_to_pipe import WriteToPipe
-from mr_freeze.resources.measurement_pipe import Pipe
 
 log = logging.getLogger(__name__)
 

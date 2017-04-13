@@ -4,19 +4,15 @@ Contains unit tests for :mod:`mr_freeze.tasks.make_measurement`
 """
 import unittest
 import unittest.mock as mock
-import quantities as pq
 from concurrent.futures import Executor
 from mr_freeze.tasks.make_measurement import MakeMeasurement
 from mr_freeze.devices.lakeshore_475 import Lakeshore475
 from mr_freeze.devices.cryomagnetics_lm510_adapter import CryomagneticsLM510
 from mr_freeze.devices.cryomagnetics_4g_adapter import Cryomagnetics4G
-from mr_freeze.resources.csv_file import CSVFile
 from mr_freeze.tasks.report_magnetic_field import ReportMagneticField
 from mr_freeze.tasks.report_current import ReportCurrent
 from mr_freeze.tasks.report_liquid_nitrogen_level \
     import ReportLiquidNitrogenLevel
-from mr_freeze.tasks.write_csv_values import WriteCSVValues
-from mr_freeze.resources.measurement_pipe import Pipe
 from mr_freeze.resources.application_state import Store
 
 

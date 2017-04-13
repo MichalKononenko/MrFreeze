@@ -51,8 +51,6 @@ script:
 
   # This test tests the CSV writer. It should be safe to run on travis
   - nosetests ./tests/integration/test_resources/test_csv_file.py --with-coverage
-  # Test the JSON pipe writer.
-  - nosetests ./tests/integration/test_resources/test_pipe.py --with-coverage
 
 after_success:
   - coveralls
