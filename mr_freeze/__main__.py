@@ -17,6 +17,5 @@ logging.basicConfig(
 )
 
 app = Application()
-exit_code = app.start()
 
-sys.exit(exit_code)
+sys.exit(app.start())

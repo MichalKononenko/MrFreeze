@@ -37,6 +37,8 @@ class Application(object):
         self._gaussmeter = self._configure_gaussmeter()
         self._level_meter = self._configure_level_meter()
         self._power_supply = self._configure_power_supply()
+        self._app = QtGui.QApplication(sys.argv)
+        self._gui = GUI(self._store)
 
     def start_loop(
             self,
@@ -57,32 +59,21 @@ class Application(object):
         )
         loop.run()
 
-    def start_gui(self, gui_builder: GUI.__class__=GUI,
-                  qt_app_class=QtGui.QApplication.__class__) -> int:
-        """
-        Start the application GUI
-
-        :param gui_builder: The class to use to start the GUI
-        :param qt_app_class: The class to use to build the Qt application
-        """
-        qt_app = qt_app_class(sys.argv)
-        gui = gui_builder(self._store)
-        gui.show()
-        return qt_app.exec_()
-
-    def start(self) -> int:
+    def start(self) -> None:
         """
         Start the measurement loop and the GUI
 
         :return: The exit code for the application
         """
         loop_thread = self._MeasurementLoopThread()
+
         if not self._gui_only_mode:
+            self.start_loop()
             loop_thread.start()
 
-        exit_code = self.start_gui()
+        self._gui.show()
 
-        return exit_code
+        return self._app.exec_()
 
     @property
     def _gaussmeter_address(self) -> str:

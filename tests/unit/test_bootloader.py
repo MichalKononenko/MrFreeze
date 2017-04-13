@@ -4,10 +4,8 @@ Contains unit tests for the bootloader
 """
 import unittest
 import unittest.mock as mock
-from PyQt4 import QtGui
 from mr_freeze.measurement_loop import MeasurementLoop
 from mr_freeze.bootloader import Application
-from mr_freeze.ui.ui_loader import Main
 
 
 class TestApplication(unittest.TestCase):
@@ -45,26 +43,4 @@ class TestStartLoop(TestApplication):
 
         self.assertTrue(
             self.task_builder().run.called
-        )
-
-
-class TestStartGui(TestApplication):
-    def setUp(self):
-        TestApplication.setUp(self)
-        self.gui_builder = mock.MagicMock(spec=Main.__class__)
-        self.qt_app_class = mock.MagicMock(spec=QtGui.QApplication.__class__)
-
-    def test_start_gui(self):
-        self.app.start_gui(
-            gui_builder=self.gui_builder,
-            qt_app_class=self.qt_app_class
-        )
-
-        self.assertEqual(
-            mock.call(self.app._store),
-            self.gui_builder.call_args
-        )
-
-        self.assertTrue(
-            self.gui_builder().show.called
         )
