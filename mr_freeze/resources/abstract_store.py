@@ -3,6 +3,7 @@
 Manages a cache of the last measured variable. Capable of notifying other
 resources that a variable changed
 """
+import logging
 from typing import TypeVar, Callable, Set
 from concurrent.futures import Executor
 import weakref
@@ -10,6 +11,8 @@ import abc
 from six import add_metaclass
 
 V = TypeVar("V")
+
+log = logging.getLogger(__name__)
 
 
 @add_metaclass(abc.ABCMeta)
@@ -86,8 +89,16 @@ class Variable(object):
             are garbage-collected differently than conventional methods.
             """
             if self._is_bound_method(listener):
+                log.debug(
+                    'listener %s is bound method. Using weakmethod for weakref'
+                    , listener
+                )
                 ref = weakref.WeakMethod(listener)
             else:
+                log.debug(
+                    "listener %s is not bound. Using conventional weakref",
+                    listener
+                )
                 ref = weakref.ref(listener)
             self.listeners.add(ref)
 

@@ -13,8 +13,9 @@ class TestLiquidHeliumLevelChange(UserInterfaceTestCase):
     def setUp(self):
         UserInterfaceTestCase.setUp(self)
         self.new_lhe_level = 3.0 * cm
+        self.new_ln2_level = 3.0 * cm
 
-    def test_variable_change(self):
+    def test_lhe_variable_change(self):
         self.store[LiquidHeliumLevel].value = self.new_lhe_level
 
         self.assertEqual(
@@ -26,13 +27,7 @@ class TestLiquidHeliumLevelChange(UserInterfaceTestCase):
         self.store[LiquidHeliumLevel].value = nan
         self.assertIsNotNone(self.ui.ui.liquid_helium_display.value())
 
-
-class TestLiquidNitrogenLevelChange(UserInterfaceTestCase):
-    def setUp(self):
-        UserInterfaceTestCase.setUp(self)
-        self.new_ln2_level = 3.0 * cm
-
-    def test_variable_change(self):
+    def test_ln2_variable_change(self):
         self.store[LiquidNitrogenLevel].value = self.new_ln2_level
 
         self.assertEqual(

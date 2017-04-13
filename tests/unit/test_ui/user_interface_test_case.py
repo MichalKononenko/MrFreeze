@@ -23,7 +23,7 @@ import sys
 
 
 class UserInterfaceTestCase(unittest.TestCase):
-    number_of_ui_threads = 1
+    number_of_ui_threads = 20
 
     @classmethod
     def setUpClass(cls):
@@ -36,4 +36,3 @@ class UserInterfaceTestCase(unittest.TestCase):
     def tearDownClass(cls):
         if hasattr(cls, 'app'):
             cls.app.quit()
-
