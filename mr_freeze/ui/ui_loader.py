@@ -103,7 +103,7 @@ class Main(QtGui.QMainWindow):
             )
             return
 
-        print(log_interval)
+        self.store[LoggingInterval].value = log_interval
 
     def get_num(self,num):
         a = num.split(" ")

@@ -3,9 +3,9 @@
 Parses command line arguments given to the application
 """
 import argparse
-from mr_freeze.bootstrap import BootLoader
+from mr_freeze.config_file_parser import ConfigFileParser
 
-loader = BootLoader()
+loader = ConfigFileParser()
 
 parser = argparse.ArgumentParser(
     description="Log variables from the instrument rack"

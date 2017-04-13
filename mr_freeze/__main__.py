@@ -6,9 +6,12 @@ starts the application loop
 """
 import sys
 from PyQt4 import QtGui
-from mr_freeze.argument_parser import parser
+from concurrent.futures import ThreadPoolExecutor
+from multiprocessing import cpu_count
+from mr_freeze.cli_argument_parser import parser
 from mr_freeze.main_loop import MainLoop
 from mr_freeze.ui.ui_loader import Main
+from mr_freeze.resources.application_state import Store
 import logging
 
 log = logging.getLogger(__name__)
@@ -33,6 +36,9 @@ if any(
 ):
     parser.print_usage()
 
+executor = ThreadPoolExecutor(5 * cpu_count())
+store = Store(executor)
+
 loop = MainLoop(
     parsed_arguments.csv_file, parsed_arguments.json_file,
     parsed_arguments.ln2_gauge_address,
@@ -43,6 +49,6 @@ loop = MainLoop(
 )
 
 app = QtGui.QApplication(sys.argv)
-window = Main()
+window = Main(store)
 window.show()
 sys.exit(app.exec_())

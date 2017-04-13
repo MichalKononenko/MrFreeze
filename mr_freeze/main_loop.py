@@ -116,7 +116,7 @@ class MainLoop(object):
             log.debug("Measuring variables")
             task = MakeMeasurement(
                 self.ln2_gauge, self.power_supply, self.magnetometer,
-                self.csv_file, self.pipe, self.timeout
+                self.csv_file, self.pipe, self.store, self.timeout
             )
             task(executor).result(self.timeout)
             log.debug("Measurement completed. Waiting for time between "

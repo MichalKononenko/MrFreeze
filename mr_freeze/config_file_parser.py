@@ -14,12 +14,14 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
 
-class BootLoader(object):
+class ConfigFileParser(object):
     """
     Describes the bootloader for the application
     """
+    _root_directory = os.path.abspath(os.path.sep)
+
     CONFIG_FILE_LOCATIONS = (
-        os.path.join("etc", "mr-freeze.conf"),
+        os.path.join(_root_directory, "etc", "mr-freeze.conf"),
         os.path.join(os.path.curdir, "mr-freeze.conf"),
         os.path.join(APPLICATION_DIRECTORY, "mr-freeze.conf")
     )

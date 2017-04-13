@@ -6,7 +6,7 @@ import unittest
 import unittest.mock as mock
 import os
 from typing import Mapping
-from mr_freeze.bootstrap import BootLoader
+from mr_freeze.config_file_parser import ConfigFileParser
 from mr_freeze.exceptions import BadConfigParameter
 from mr_freeze.devices.cryomagnetics_lm510_adapter import CryomagneticsLM510
 
@@ -16,7 +16,7 @@ class TestBootloader(unittest.TestCase):
     Contains unit tests for the bootloader
     """
     def setUp(self):
-        self.loader = BootLoader()
+        self.loader = ConfigFileParser()
 
 
 class TestConfigFileName(TestBootloader):
@@ -56,9 +56,9 @@ class OverloadedBootLoaderTestCase(TestBootloader):
         TestBootloader.setUp(self)
         self.parameters = {'GAUSSMETER_ADDRESS': 'address'}
 
-        self.loader = self.OverloadedConfigBootLoader(self.parameters)
+        self.loader = self.OverloadedConfigFileParser(self.parameters)
 
-    class OverloadedConfigBootLoader(BootLoader):
+    class OverloadedConfigFileParser(ConfigFileParser):
         """
         Describes a bootlaoder that doesn't actually look for the config
         file, but returns a dict instead
