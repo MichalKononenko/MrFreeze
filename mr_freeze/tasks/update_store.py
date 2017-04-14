@@ -43,7 +43,8 @@ class UpdateStore(AbstractTask):
 
     @staticmethod
     def _update_variable(
-            variable: Variable, value: Quantity, store: Store) -> None:
+            variable: Variable.__class__, value: Quantity, store: Store) -> \
+            None:
         """
         Update the variable if the variable is not None
 
@@ -51,4 +52,4 @@ class UpdateStore(AbstractTask):
         :param store: The store to update
         """
         if variable is not None:
-            store[variable] = value
+            store[variable].value = value

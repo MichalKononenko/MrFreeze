@@ -7,6 +7,7 @@ import unittest.mock as mock
 from concurrent.futures import Executor
 from quantities import cm, A, gauss
 from mr_freeze.resources.abstract_store import Store
+from mr_freeze.resources.application_state import Store as ConcreteStore
 from mr_freeze.tasks.update_store import UpdateStore
 from mr_freeze.resources.application_state import LiquidNitrogenLevel
 from mr_freeze.resources.application_state import LiquidHeliumLevel
@@ -20,7 +21,7 @@ class TestUpdateStore(unittest.TestCase):
     """
     def setUp(self):
         self.executor = mock.MagicMock(spec=Executor)  # type: Executor
-        self.store = dict()  # type: Store
+        self.store = ConcreteStore(self.executor)  # type: Store
         self.new_lhe_level = 3.0 * cm
         self.new_ln2_level = 10.0 * cm
         self.new_current = 50.0 * A
@@ -40,14 +41,8 @@ class TestTask(TestUpdateStore):
     Contains tests for the task
     """
     def test_task(self):
-        expected_return_value = {
-            MagneticField: self.magnetic_field,
-            Current: self.new_current,
-            LiquidNitrogenLevel: self.new_ln2_level,
-            LiquidHeliumLevel: self.new_lhe_level
-        }
         self.task.task(self.executor)
 
         self.assertEqual(
-            expected_return_value, self.store
+            self.new_lhe_level, self.store[LiquidHeliumLevel].value
         )

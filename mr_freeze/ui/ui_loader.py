@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Created on March 24, 2017
@@ -12,10 +13,10 @@ import sys
 from PyQt4 import QtGui
 import json
 from time import sleep
-
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import cpu_count
 from quantities import Quantity, cm
+from random import uniform
 
 # IMPORTS For Gui setUp
 from mr_freeze.ui.user_interface import Ui_MainwindowUI
@@ -27,9 +28,6 @@ from mr_freeze.resources.application_state import Current
 from mr_freeze.resources.application_state import LoggingInterval
 
 ############################ IMPORTS For Gui Controller#############################
-#from mr_freeze.main_loop import MainLoop
-# from mr_freeze.argument_parser import parser
-# from mr_freeze.main_loop import MainLoop
 import logging
 
 log = logging.getLogger(__name__)
@@ -126,28 +124,28 @@ class Main(QtGui.QMainWindow):
 
     def _handle_lhe_level_change(self, new_value: Quantity) -> None:
         log.debug(
-            "UI received Handle LHe Change event. New value is %d",
+            "UI received Handle LHe Change event. New value is %s",
             new_value
         )
         self.ui.liquid_helium_display.display(float(new_value))
 
     def _handle_ln2_level_change(self, new_value: Quantity) -> None:
         log.debug(
-            "UI received LN2 change event. New value is %d",
+            "UI received LN2 change event. New value is %s",
             new_value
         )
         self.ui.liquid_nitrogen_display.display(float(new_value))
 
     def _handle_b_field_change(self, new_value: Quantity) -> None:
         log.debug(
-            "UI received B field change event. New value is %d",
+            "UI received B field change event. New value is %s",
             new_value
         )
         self.ui.magnetic_field_display.display(float(new_value))
 
     def _handle_current_change(self, new_value: Quantity) -> None:
         log.debug(
-            "UI received Current change event. New value is %d",
+            "UI received Current change event. New value is %s",
             new_value
         )
         self.ui.main_current_display.display(float(new_value))
@@ -171,6 +169,20 @@ class Main(QtGui.QMainWindow):
             self._handle_logging_interval_change
         )
 
+
+def change_event(store: Store):
+    """
+    Change a few values to show that the UI store is working as expected
+
+    :param store:
+    :return:
+    """
+    while True:
+        sleep(0.25)
+        store[LiquidHeliumLevel].value = uniform(0, 100.0) * cm
+        store[LiquidNitrogenLevel].value = uniform(0, 100.0) * cm
+        store[MagneticField].value = uniform(0, 10.0)
+
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
 
@@ -178,4 +190,5 @@ if __name__ == '__main__':
         empty_store = Store(executor)
         window = Main(empty_store)
         window.show()
+        task = executor.submit(change_event, empty_store)
         sys.exit(app.exec_())
