@@ -14,20 +14,20 @@ Abstract Store
 
 The abstract store defines the interface to the application state.
 
-.. autoclass:: mr_freeze.resources.abstract_store
+.. automodule:: mr_freeze.resources.abstract_store
     :members:
     :undoc-members:
 
 Application State
 ~~~~~~~~~~~~~~~~~
 
-.. autoclass:: mr_freeze.resources.application_state
+.. automodule:: mr_freeze.resources.application_state
     :members:
     :undoc-members:
 
 CSV File
 ========
 
-.. autoclass:: mr_freeze.resources.csv_file
+.. automodule:: mr_freeze.resources.csv_file
     :members:
     :undoc-members:
