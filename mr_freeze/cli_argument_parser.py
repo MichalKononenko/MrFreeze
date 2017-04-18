@@ -3,9 +3,9 @@
 Parses command line arguments given to the application
 """
 import argparse
-from mr_freeze.bootstrap import BootLoader
+from mr_freeze.config_file_parser import ConfigFileParser
 
-loader = BootLoader()
+loader = ConfigFileParser()
 
 parser = argparse.ArgumentParser(
     description="Log variables from the instrument rack"
@@ -56,4 +56,11 @@ parser.add_argument(
          "another measurement. By default, this value is 900 seconds (15 "
          "minutes)",
     default=loader.sample_interval
+)
+
+parser.add_argument(
+    '--gui-only-mode', type=bool,
+    help="Used only for testing, run if the GUI needs to be run without "
+         "starting the measurement loop",
+    default=False
 )

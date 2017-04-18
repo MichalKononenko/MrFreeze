@@ -1,9 +1,10 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 """
 Manages a cache of the last measured variable. Capable of notifying other
 resources that a variable changed
 """
-from typing import NewType, TypeVar, Callable, Set
+import logging
+from typing import TypeVar, Callable, Set
 from concurrent.futures import Executor
 import weakref
 import abc
@@ -11,13 +12,14 @@ from six import add_metaclass
 
 V = TypeVar("V")
 
+log = logging.getLogger(__name__)
+
 
 @add_metaclass(abc.ABCMeta)
 class Variable(object):
     """
     Capable of notifying on change
     """
-    ListenerType = NewType("ListenerType", Callable[[V], None])
 
     def __init__(
             self,
@@ -25,7 +27,7 @@ class Variable(object):
             variable_update_executor: Executor
     ) -> None:
         self._value = initial_value
-        self._listeners = weakref.WeakSet()  # type: Set[Callable[V]]
+        self._listeners = self._ListenerSet()  # type: Set[Callable[[V], None]
         self._executor = variable_update_executor
 
     @property
@@ -47,7 +49,7 @@ class Variable(object):
         self._notify_listeners()
 
     @property
-    def listeners(self) -> Set[ListenerType]:
+    def listeners(self) -> Set[Callable[[V], None]]:
         """
 
         :return: The list of callbacks that are listening for changes to
@@ -59,14 +61,61 @@ class Variable(object):
         """
         Notify the active listeners that the value of the variable changed
         """
-        for listener in self.listeners:
-            if listener is not None:
-                self._executor.submit(listener, self._value)
+        for listener_ref in self.listeners:
+            meth = listener_ref()
+            if meth is not None:
+                log.debug("Running listener %s for variable %s", meth, self)
+                self._executor.submit(meth, self._value)
+            else:
+                log.debug("Listener reference %s is None", listener_ref)
 
     def __repr__(self):
         return "%s(initial_value=%s)" % (
             self.__class__.__name__, self._value
         )
+
+    class _ListenerSet(Set):
+        """
+        Contains the listeners
+        """
+        def __init__(self):
+            super(Set, self).__init__()
+            self.listeners = set()
+
+        def add(self, listener: Callable[[V], None]) -> None:
+            """
+            Add a weak reference to the listener in the set.
+            The ``hasattr(__self__)`` test is used to check whether the
+            method is bound or not. If the listener to add is a bound
+            method, a ``WeakMethod`` is stored instead of a generic weak
+            reference. This has to be done because bound methods in Python
+            are garbage-collected differently than conventional methods.
+            """
+            if self._is_bound_method(listener):
+                log.debug(
+                    'listener %s is bound method. Using weakmethod for weakref'
+                    , listener
+                )
+                ref = weakref.WeakMethod(listener)
+            else:
+                log.debug(
+                    "listener %s is not bound. Using conventional weakref",
+                    listener
+                )
+                ref = weakref.ref(listener)
+            self.listeners.add(ref)
+
+        @staticmethod
+        def _is_bound_method(method: Callable[[V], None]) -> bool:
+            return hasattr(method, '__self__')
+
+        def __iter__(self):
+            """
+
+            :return: The iterator of the underlying set of listeners that this
+            set is managing
+            """
+            return self.listeners.__iter__()
 
 
 @add_metaclass(abc.ABCMeta)

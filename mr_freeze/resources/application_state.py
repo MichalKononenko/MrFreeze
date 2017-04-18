@@ -2,6 +2,7 @@
 """
 Provides concrete implementations of the store and required variables
 """
+from concurrent.futures import Executor
 from mr_freeze.resources.abstract_store import Store as _Store
 from mr_freeze.resources.abstract_store import Variable as _Variable
 from numpy import nan
@@ -13,13 +14,14 @@ class Store(_Store):
     Contains a concrete implementation of the store to be used for
     manipulating data
     """
-    def __init__(self, *args, **kwargs):
-        super(self.__class__, self).__init__(*args, **kwargs)
+    def __init__(self, variable_update_executor: Executor) -> None:
+        super(self.__class__, self).__init__(variable_update_executor)
         self._variables = {
             LiquidHeliumLevel: LiquidHeliumLevel(nan * cm, self.executor),
             LiquidNitrogenLevel: LiquidNitrogenLevel(nan * cm, self.executor),
             MagneticField: MagneticField(nan * gauss, self.executor),
-            Current: Current(nan * A, self.executor)
+            Current: Current(nan * A, self.executor),
+            LoggingInterval: LoggingInterval(15, self.executor)
         }
 
 
@@ -50,6 +52,14 @@ class MagneticField(_Variable):
 class Current(_Variable):
     """
     Describes the current going into the power supply
+    """
+    def __init__(self, *args, **kwargs):
+        super(self.__class__, self).__init__(*args, **kwargs)
+
+
+class LoggingInterval(_Variable):
+    """
+    Describes the amount of time that should elapse before logging
     """
     def __init__(self, *args, **kwargs):
         super(self.__class__, self).__init__(*args, **kwargs)

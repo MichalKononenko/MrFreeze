@@ -12,15 +12,38 @@ This section contains auto-generated API documentation.
     tasks
     tests
 
+List of Exceptions
+------------------
+
+.. automodule:: mr_freeze.exceptions
+
 Top-Level Modules
 -----------------
 
-.. automodule:: mr_freeze
+Bootloader
+~~~~~~~~~~
 
-.. automodule:: mr_freeze.argument_parser
+.. automodule:: mr_freeze.bootloader
     :members:
     :undoc-members:
 
-.. automodule:: mr_freeze.main_loop
+CLI Argument Parser
+~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: mr_freeze.cli_argument_parser
+    :members:
+    :undoc-members:
+
+Config File Parser
+~~~~~~~~~~~~~~~~~~
+
+.. automodule:: mr_freeze.config_file_parser
+    :members:
+    :undoc-members:
+
+Measurement Loop
+~~~~~~~~~~~~~~~~
+
+.. automodule:: mr_freeze.measurement_loop
     :members:
     :undoc-members:

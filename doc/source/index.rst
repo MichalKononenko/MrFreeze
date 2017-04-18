@@ -10,9 +10,7 @@ Welcome to Mr. Freeze's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   tutorial
    reference/index
-   tests
 
 Indices and tables
 ==================

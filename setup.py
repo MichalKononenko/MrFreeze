@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="mr_freeze",
-    version="1.0",
+    version="2.0",
     description="Reports measured variables from a cryostat",
     author="Michal Kononenko",
     author_email="mkononen@uwaterloo.ca",
@@ -14,6 +14,7 @@ setup(
     packages=find_packages(exclude=["tests", "tests.*"]),
     install_requires=[
         "instrumentkit==0.3.1",
-        "typing==3.5.3.0"
+        "typing==3.5.3.0",
+        "schedule==0.4.2"
     ]
 )

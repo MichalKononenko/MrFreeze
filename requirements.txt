@@ -24,6 +24,7 @@ pyusb==1.0.0
 PyYAML==3.12
 quantities
 requests==2.13.0
+schedule==0.4.2
 six==1.10.0
 snowballstemmer==1.2.1
 Sphinx==1.5.3

@@ -1,5 +1,5 @@
 import unittest
-from mr_freeze.argument_parser import parser
+from mr_freeze.cli_argument_parser import parser
 
 
 class TestArgumentParser(unittest.TestCase):
