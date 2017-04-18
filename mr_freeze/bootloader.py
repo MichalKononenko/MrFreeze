@@ -38,6 +38,7 @@ class Application(object):
         self._level_meter = self._configure_level_meter()
         self._power_supply = self._configure_power_supply()
         self._app = QtGui.QApplication(sys.argv)
+        self._app.deleteLater()
         self._gui = GUI(self._store)
 
     def start_loop(

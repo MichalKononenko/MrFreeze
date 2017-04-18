@@ -17,9 +17,12 @@ from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import cpu_count
 from quantities import Quantity, cm
 from random import uniform
+import os
+from datetime import datetime
 
 # IMPORTS For Gui setUp
 from mr_freeze.ui.user_interface import Ui_MainwindowUI
+from mr_freeze.resources.csv_file import CSVLogger
 from mr_freeze.resources.application_state import Store
 from mr_freeze.resources.application_state import LiquidHeliumLevel
 from mr_freeze.resources.application_state import LiquidNitrogenLevel
@@ -48,8 +51,8 @@ class Main(QtGui.QMainWindow):
         self.ui = Ui_MainwindowUI()
         self.ui.setupUi(self)
         self.setWindowIcon(QtGui.QIcon("images/config.png"))
-        self.ui.start_logging_button.clicked.connect(self.start)
-        self.ui.stop_logging_button.clicked.connect(self.stop)
+        self.ui.start_logging_button.clicked.connect(self.start_logging)
+        self.ui.stop_logging_button.clicked.connect(self.stop_logging)
         self.ui.pushButton.clicked.connect(self.set_main_current)
         self.ui.pushButton_2.clicked.connect(self.sweep_current)
         self.ui.log_interval_go_button.clicked.connect(self.set_log_interval)
@@ -58,26 +61,31 @@ class Main(QtGui.QMainWindow):
         self.store = store
 
         self._add_listeners(self.store)
+        self._csv_log = None
+        self.ui.stop_logging_button.setDisabled(True)
 
-    def start(self):
+    def start_logging(self):
         """
         Start the application
         """
-        print("Hello Mr freeze!!!!!")
-        self.interrupt = True
+        path_to_csv_file = os.path.join(os.path.curdir, "result-%s",
+                                        datetime.now().isoformat())
+        csv_log = CSVLogger(self.store, path_to_csv_file, self.store.executor)
+        csv_log.start_logging()
 
-        while self.interrupt:  # This constructs an infinite loop
-            print("You enter")
-            QtGui.qApp.processEvents()
-            sleep(5)
-            
-        print("Stop logging")
+        self._csv_log = csv_log
+        self.ui.start_logging_button.setDisabled(True)
+        self.ui.stop_logging_button.setEnabled(True)
 
-    def stop(self):
+    def stop_logging(self):
         """
         Stop the application
         """
-        print("Stop logging!!!")
+        if self._csv_log is not None:
+            self._csv_log.stop_logging()
+            self._csv_log = None
+            self.ui.start_logging_button.setEnabled(True)
+            self.ui.stop_logging_button.setDisabled(True)
 
     def set_main_current(self):
         print("set_main_current")
