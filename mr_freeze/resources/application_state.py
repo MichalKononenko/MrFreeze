@@ -2,6 +2,7 @@
 """
 Provides concrete implementations of the store and required variables
 """
+import os
 from concurrent.futures import Executor
 from mr_freeze.resources.abstract_store import Store as _Store
 from mr_freeze.resources.abstract_store import Variable as _Variable
@@ -21,7 +22,8 @@ class Store(_Store):
             LiquidNitrogenLevel: LiquidNitrogenLevel(nan * cm, self.executor),
             MagneticField: MagneticField(nan * gauss, self.executor),
             Current: Current(nan * A, self.executor),
-            LoggingInterval: LoggingInterval(15, self.executor)
+            LoggingInterval: LoggingInterval(15, self.executor),
+            CSVDirectory: CSVDirectory(os.devnull, self.executor)
         }
 
 
@@ -60,6 +62,14 @@ class Current(_Variable):
 class LoggingInterval(_Variable):
     """
     Describes the amount of time that should elapse before logging
+    """
+    def __init__(self, *args, **kwargs):
+        super(self.__class__, self).__init__(*args, **kwargs)
+
+
+class CSVDirectory(_Variable):
+    """
+    Describes where to write the logfile
     """
     def __init__(self, *args, **kwargs):
         super(self.__class__, self).__init__(*args, **kwargs)

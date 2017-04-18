@@ -16,7 +16,7 @@ from mr_freeze.devices.cryomagnetics_lm510_adapter import CryomagneticsLM510
 from mr_freeze.devices.cryomagnetics_4g_adapter import Cryomagnetics4G
 from mr_freeze.cli_argument_parser import parser
 from mr_freeze.config_file_parser import ConfigFileParser
-from mr_freeze.resources.application_state import Store
+from mr_freeze.resources.application_state import Store, CSVDirectory
 from mr_freeze.ui.ui_loader import Main as GUI
 from mr_freeze.measurement_loop import MeasurementLoop
 
@@ -40,6 +40,7 @@ class Application(object):
         self._app = QtGui.QApplication(sys.argv)
         self._app.deleteLater()
         self._gui = GUI(self._store)
+        self._store[CSVDirectory].value = self._csv_directory
 
     def start_loop(
             self,
@@ -137,6 +138,17 @@ class Application(object):
             return self._cli_arguments.gui_only_mode
         except AttributeError:
             return False
+
+    @property
+    def _csv_directory(self) -> str:
+        """
+
+        :return: The directory to which the logfile is to be written
+        """
+        try:
+            return self._cli_arguments.csv_file
+        except AttributeError:
+            return self.config_file_parser.csv_output_directory
 
     @staticmethod
     def _make_argument_not_found_message(argument, config_file):

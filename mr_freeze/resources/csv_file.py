@@ -3,6 +3,7 @@
 Logs the output to the CSV file
 """
 import csv
+import os
 from datetime import datetime
 from typing import Dict, Optional, Any, Iterable
 from concurrent.futures import Executor
@@ -44,7 +45,7 @@ class CSVLogger(object):
         Current
     )
 
-    _writing_mode = 'w'
+    _writing_mode = 'a+'
     _delimiter = ', '
     _logger_tag = 'log-values'
 
@@ -81,6 +82,9 @@ class CSVLogger(object):
         """
         Write the current values from the store to the file
         """
+        if not os.path.isfile(self.path):
+            self.write_titles()
+
         with open(self.path, mode=self._writing_mode) as file:
             writer = csv.DictWriter(f=file, fieldnames=self._variable_titles)
             writer.writerow(self._values_for_dict_writer)
