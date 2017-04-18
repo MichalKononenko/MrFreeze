@@ -1,14 +1,55 @@
+# coding=utf-8
 """
-Contains an abstract base class for all tasks that report a variable to the
-CSV file. Each of these tasks also has a title field which states the title
-of the variable
+Describes how to report a variable to the store
 """
 import abc
+import logging
+from concurrent.futures import Executor
 from mr_freeze.tasks.abstract_task import AbstractTask
+from mr_freeze.resources.abstract_store import Variable, V, Store
+from six import add_metaclass
+
+log = logging.getLogger(__name__)
 
 
-class ReportVariableTask(AbstractTask, metaclass=abc.ABCMeta):
+@add_metaclass(abc.ABCMeta)
+class ReportVariableTask(AbstractTask):
     """
-    The class describing how to report the variable
+    Write a task to the store
     """
-    title = "Abstract Task"
+    def __init__(self, store: Store):
+        """
+
+        :param store: The store to which the new value of the variable is to be
+         reported
+        """
+        super(ReportVariableTask, self).__init__()
+        self.store = store
+
+    def task(self, executor: Executor) -> None:
+        """
+
+        Get the new value and write it to the store
+
+        :param executor: The executor to use for the task
+        """
+        self.store[self.variable_type].value = self.variable
+
+    @abc.abstractproperty
+    def variable_type(self) -> Variable.__class__:
+        """
+
+        :return: The type of variable that this task reports
+        """
+        return Variable
+
+    @abc.abstractproperty
+    def variable(self) -> V:
+        """
+
+        :return: The new value of the variable
+        """
+        raise NotImplementedError()
+
+    def __repr__(self) -> str:
+        return "{0}(store={1})".format(self.__class__.__name__, self.store)

@@ -56,7 +56,7 @@ class Application(object):
             power_supply=self._power_supply,
             store=self._store,
             executor=self._executor,
-            sample_interval_in_seconds=30
+            sample_interval_in_seconds=10
         )
         loop.run()
 

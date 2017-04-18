@@ -1,9 +1,16 @@
+# -*- coding: utf-8 -*-
 """
 Contains unit tests for :mod:`mr_freeze.tasks.report_liquid_nitrogen_level`
 """
 import unittest
 import unittest.mock as mock
+from numpy import nan
+from quantities import cm
 from concurrent.futures import Executor
+from numpy.testing import assert_array_equal
+from mr_freeze.exceptions import NoEchoedCommandFoundError
+from mr_freeze.resources.abstract_store import Store
+from mr_freeze.resources.application_state import LiquidNitrogenLevel
 from mr_freeze.devices.cryomagnetics_lm510_adapter import CryomagneticsLM510
 from mr_freeze.tasks.report_liquid_nitrogen_level import \
     ReportLiquidNitrogenLevel
@@ -13,16 +20,19 @@ class TestReportLiquidNitrogenLevel(unittest.TestCase):
     """
     Base class for tests of the liquid nitrogen level
     """
-    gauge = mock.MagicMock(spec=CryomagneticsLM510)  # type: CryomagneticsLM510
-    ln2_channel = 2
-    executor = mock.MagicMock(spec=Executor)
 
     def setUp(self):
         """
         Create an instance of the task
         """
+        self.gauge = mock.MagicMock(
+            spec=CryomagneticsLM510)  # type: CryomagneticsLM510
+        self.ln2_channel = 2
+        self.executor = mock.MagicMock(spec=Executor)
+        self.store = mock.MagicMock(spec=Store)  # type: Store
+
         self.task = ReportLiquidNitrogenLevel(
-            self.gauge, ln2_channel=self.ln2_channel
+            self.gauge, self.store, ln2_channel=self.ln2_channel
         )
 
 
@@ -37,48 +47,37 @@ class TestInitializer(TestReportLiquidNitrogenLevel):
         self.assertEqual(self.gauge, self.task.gauge)
         self.assertEqual(self.ln2_channel, self.task.ln_2_channel)
 
-
-class TestCall(TestReportLiquidNitrogenLevel):
-    """
-    Contains unit tests for :meth:`__call__`
-    """
-    def test_run_task(self):
-        """
-        Run the task and assert it works correctly
-        """
-        self.task(self.executor)
-        ln2_level = self._task_function(self.executor)
+    def test_variable_type(self):
         self.assertEqual(
-            self.gauge.channel_2_measurement, ln2_level
+            LiquidNitrogenLevel, self.task.variable_type
         )
 
-    def test_measure_channel_1(self):
-        """
-        Tests that the channel 1 measurement is returned if the channel is
-        set to 1 for LN2
-        """
+
+class TestVariable(TestReportLiquidNitrogenLevel):
+    """
+    Contains unit tests for the variable level
+    """
+    def test_channel_1_variable(self):
         self.task.ln_2_channel = 1
-        self.task(self.executor)
-        ln2_level = self._task_function(self.executor)
         self.assertEqual(
-            self.gauge.channel_1_measurement, ln2_level
+            self.task.variable,
+            self.gauge.channel_1_measurement
         )
 
-    def test_measure_error(self):
-        """
-        Tests that a :class:`RuntimeError` is thrown if the LN 2 channel is
-        not 1 or 2
-        """
-        self.task.ln_2_channel = 3
-        self.task(self.executor)
+    def test_channel_2_variable(self):
+        self.task.ln_2_channel = 2
+        self.assertEqual(
+            self.task.variable,
+            self.gauge.channel_2_measurement
+        )
 
-        with self.assertRaises(RuntimeError):
-            self._task_function(self.executor)
-
-    @property
-    def _task_function(self):
-        """
-        Extract the callable that was submitted to the executor from the
-        arguments with which the executor was called
-        """
-        return self.executor.submit.call_args[0][0]
+    def test_error(self):
+        type(self.gauge).channel_1_measurement = mock.PropertyMock(
+            side_effect=NoEchoedCommandFoundError(
+                "Big explosion! Really the best explosion!"
+            )
+        )
+        assert_array_equal(
+            nan * cm,
+            self.task.variable
+        )
