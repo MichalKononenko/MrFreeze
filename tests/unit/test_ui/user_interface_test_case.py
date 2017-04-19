@@ -30,6 +30,7 @@ class UserInterfaceTestCase(unittest.TestCase):
         cls.executor = ThreadPoolExecutor(cls.number_of_ui_threads)
         cls.store = Store(cls.executor)
         cls.app = QtGui.QApplication(sys.argv)
+        cls.app.deleteLater()
         cls.ui = Main(cls.store)
 
     @classmethod
