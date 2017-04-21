@@ -227,31 +227,31 @@ class Main(QtGui.QMainWindow):
             "UI received Handle LHe Change event. New value is %s",
             new_value
         )
-        self.ui.liquid_helium_display.display(float(new_value))
+        self.ui.lhe_level_display.setText("%2.4f" % float(new_value))
 
     def _handle_ln2_level_change(self, new_value: Quantity) -> None:
         log.debug(
             "UI received LN2 change event. New value is %s",
             new_value
         )
-        self.ui.liquid_nitrogen_display.display(float(new_value))
+        self.ui.ln2_level_display.setText("%2.4f" % float(new_value))
 
     def _handle_b_field_change(self, new_value: Quantity) -> None:
         log.debug(
             "UI received B field change event. New value is %s",
             new_value
         )
-        self.ui.magnetic_field_display.display(float(new_value))
+        self.ui.magnetic_field_display.setText("%2.4f" % float(new_value))
 
     def _handle_current_change(self, new_value: Quantity) -> None:
         log.debug(
             "UI received Current change event. New value is %s",
             new_value
         )
-        self.ui.main_current_display.display(float(new_value))
+        self.ui.main_current_display.setText("%2.4f" % float(new_value))
 
     def _handle_logging_interval_change(self, new_value: Quantity) -> None:
-        self.ui.log_interval_display.display(float(new_value))
+        self.ui.log_interval_display.setText("%2.4f" % float(new_value))
 
     def _add_listeners(self, store: Store) -> None:
         """
@@ -282,6 +282,7 @@ def change_event(store: Store) -> None:
         store[LiquidHeliumLevel].value = uniform(0, 100.0) * cm
         store[LiquidNitrogenLevel].value = uniform(0, 100.0) * cm
         store[MagneticField].value = uniform(0, 10.0)
+        store[Current].value = uniform(0, 100.0)
 
 
 class SchedulerThread(Thread):
