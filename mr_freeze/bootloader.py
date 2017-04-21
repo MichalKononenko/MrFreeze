@@ -46,7 +46,7 @@ class Application(object):
         self._app = QtGui.QApplication(sys.argv)
         self._gui = GUI(self._store)
         self._add_control_listeners_to_store(self._store)
-        self._store[PowerSupply] = self._power_supply
+        self._store[PowerSupply].value = self._power_supply
         self._store[CSVDirectory].value = self._csv_directory
 
     def start_loop(
