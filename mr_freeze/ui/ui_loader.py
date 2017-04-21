@@ -11,11 +11,10 @@ Main file open when start.bat button is pressed
 #################### Import necessary in built python module ###################
 import sys
 from PyQt4 import QtGui
-import json
 from time import sleep
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import cpu_count
-from quantities import Quantity, cm
+from quantities import Quantity, cm, amperes
 from random import uniform
 import os
 from datetime import datetime
@@ -23,12 +22,16 @@ from datetime import datetime
 # IMPORTS For Gui setUp
 from mr_freeze.ui.user_interface import Ui_MainwindowUI
 from mr_freeze.resources.csv_file import CSVLogger
+from mr_freeze.tasks.sweep_power_supply_current import SweepPowerSupply
 from mr_freeze.resources.application_state import Store
 from mr_freeze.resources.application_state import LiquidHeliumLevel
 from mr_freeze.resources.application_state import LiquidNitrogenLevel
 from mr_freeze.resources.application_state import MagneticField
 from mr_freeze.resources.application_state import Current
 from mr_freeze.resources.application_state import LoggingInterval
+from mr_freeze.resources.application_state import UpperSweepCurrent
+from mr_freeze.resources.application_state import LowerSweepCurrent
+from mr_freeze.resources.application_state import PowerSupply
 
 ############################ IMPORTS For Gui Controller#############################
 import logging
@@ -53,9 +56,24 @@ class Main(QtGui.QMainWindow):
         self.setWindowIcon(QtGui.QIcon("images/config.png"))
         self.ui.start_logging_button.clicked.connect(self.start_logging)
         self.ui.stop_logging_button.clicked.connect(self.stop_logging)
-        self.ui.pushButton.clicked.connect(self.set_main_current)
         self.ui.pushButton_2.clicked.connect(self.sweep_current)
         self.ui.log_interval_go_button.clicked.connect(self.set_log_interval)
+        self.ui.set_lower_sweep_current_button.clicked.connect(
+            self.set_lower_sweep_current
+        )
+        self.ui.set_upper_sweep_current_button.clicked.connect(
+            self.set_upper_sweep_current
+        )
+        self.ui.stop_sweep_button.clicked.connect(
+            self.stop_sweep
+        )
+        self.ui.sweep_up_button.clicked.connect(
+            self.sweep_up
+        )
+        self.ui.sweep_zero_button.clicked.connect(
+            self.sweep_to_zero
+        )
+
         self.interrupt = False
 
         self.store = store
@@ -87,7 +105,53 @@ class Main(QtGui.QMainWindow):
             self.ui.start_logging_button.setEnabled(True)
             self.ui.stop_logging_button.setDisabled(True)
 
+    def set_upper_sweep_current(self):
+        """
+        Set the sweep current
+        """
+        current_text = self.ui.upper_sweep_limit.text()
+        try:
+            current = float(current_text)
+        except ValueError:
+            QtGui.QMessageBox.warning(
+                self, 'Error',
+                '%s is not a number' % current_text,
+                QtGui.QMessageBox.Ok
+            )
+            return
+        self.store[UpperSweepCurrent].value = current
+
+    def set_lower_sweep_current(self):
+        """
+        Set the lower sweep current
+        """
+        current_text = self.ui.lower_sweep_limit.text()
+        try:
+            current = float(current_text)
+        except ValueError:
+            QtGui.QMessageBox.warning(
+                self, 'Error',
+                '%s is not a number' % current_text,
+                QtGui.QMessageBox.Ok
+            )
+            return
+        self.store[LowerSweepCurrent].value = current
+
+    def stop_sweep(self):
+        """
+        Pause the sweep
+        :return:
+        """
+        sweep_task = SweepPowerSupply(
+            SweepPowerSupply.Direction.PAUSE, self.store[PowerSupply]
+        )
+        sweep_task(self.store.executor)
+
     def set_main_current(self):
+        """
+        Set the current to a new value
+        :return:
+        """
         print("set_main_current")
     
     def sweep_current(self):
@@ -111,17 +175,40 @@ class Main(QtGui.QMainWindow):
 
         self.store[LoggingInterval].value = log_interval
 
-    def get_num(self,num):
-        a = num.split(" ")
-        return a[0]
-    
-    def get_json(self):
-        with open('pipe.json') as data_file:    
-            data = json.load(data_file)
-        return data
+    def sweep_up(self):
+        """
+        Sweep up
+        """
+        sweep_task = SweepPowerSupply(
+            SweepPowerSupply.Direction.UP, self.store[PowerSupply].value
+        )
+        sweep_task(self.store.executor)
+
+    def sweep_down(self):
+        """
+        Sweep down
+        """
+        sweep_task = SweepPowerSupply(
+            SweepPowerSupply.Direction.DOWN, self.store[PowerSupply].value
+        )
+        sweep_task(self.store.executor)
+
+    def sweep_to_zero(self):
+        """
+        Sweep to zero current
+        """
+        sweep_task = SweepPowerSupply(
+            SweepPowerSupply.Direction.ZERO, self.store[PowerSupply]
+        )
+        sweep_task(self.store.executor)
 
     def closeEvent(self, event):
+        """
+        Handle the application being closed
 
+        :param event: The event that triggered the close
+        :return:
+        """
         quit_msg = "Are you sure you want to exit CSMC?"
         reply = QtGui.QMessageBox.question(self, 'Message', quit_msg, QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
 
@@ -178,15 +265,15 @@ class Main(QtGui.QMainWindow):
         )
 
 
-def change_event(store: Store):
+def change_event(store: Store) -> None:
     """
     Change a few values to show that the UI store is working as expected
 
     :param store:
-    :return:
     """
     while True:
         sleep(0.25)
+        store[Current].value = uniform(0, 10) * amperes
         store[LiquidHeliumLevel].value = uniform(0, 100.0) * cm
         store[LiquidNitrogenLevel].value = uniform(0, 100.0) * cm
         store[MagneticField].value = uniform(0, 10.0)

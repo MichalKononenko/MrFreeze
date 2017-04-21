@@ -176,6 +176,16 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
             else:
                 self.query("SWEEP ZERO")
 
+    def pause_sweep(self):
+        """
+
+        Pause the sweep
+        """
+        log.debug("pausing sweep")
+
+        with self._requires_remote_mode():
+            self.query("SWEEP PAUSE")
+
     @staticmethod
     def parse_current_response(response):
         """

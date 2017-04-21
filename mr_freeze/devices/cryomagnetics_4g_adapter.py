@@ -143,6 +143,35 @@ class Cryomagnetics4G(object):
         self._assert_valid_current(new_current)
         self._power_supply.lower_sweep_current = new_current
 
+    def sweep_up(self, fast: bool=False) -> None:
+        """
+        Sweep the current up to the high limit
+        :param fast:
+        """
+        self._power_supply.sweep_up(fast)
+
+    def sweep_down(self, fast: bool=False) -> None:
+        """
+        Sweep the power supply down to the lower limit
+
+        :param fast: True if the sweep is to be fast
+        """
+        self._power_supply.sweep_down(fast)
+
+    def sweep_zero(self, fast: bool=False) -> None:
+        """
+        Sweep the current to zero
+
+        :param fast: True if the sweep is to be fast
+        """
+        self._power_supply.sweep_zero(fast)
+
+    def pause_sweep(self) -> None:
+        """
+        Pause sweeping
+        """
+        self._power_supply.pause_sweep()
+
     @staticmethod
     def _assert_valid_current(current: Quantity) -> None:
         """
@@ -152,7 +181,7 @@ class Cryomagnetics4G(object):
         """
         if current.units != amperes:
             raise ValueError("The current %s is not in amps", current)
-        if float(current) > 200:
+        if float(current) > 100:
             raise ValueError("The current setting is too high")
-        if float(current) < -200:
+        if float(current) < -100:
             raise ValueError("The current setting is too low")
