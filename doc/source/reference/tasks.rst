@@ -27,13 +27,6 @@ Report Variable Task
 Concrete Tasks
 --------------
 
-Get Current Date
-~~~~~~~~~~~~~~~~
-
-.. automodule:: mr_freeze.tasks.get_current_date
-    :members:
-    :undoc-members:
-
 Make Measurement
 ~~~~~~~~~~~~~~~~
 
@@ -59,12 +52,5 @@ Report Magnetic Field
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: mr_freeze.tasks.report_magnetic_field
-    :members:
-    :undoc-members:
-
-Update Store
-~~~~~~~~~~~~
-
-.. automodule:: mr_freeze.tasks.update_store
     :members:
     :undoc-members:

@@ -36,7 +36,7 @@ class TestStartLoop(TestApplication):
                 power_supply=self.app._power_supply,
                 store=self.app._store,
                 executor=self.app._executor,
-                sample_interval_in_seconds=30
+                sample_interval_in_seconds=10
             ),
             self.task_builder.call_args
         )

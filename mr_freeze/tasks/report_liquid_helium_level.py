@@ -5,8 +5,9 @@ Describes a task to report the level of liquid helium in the system
 import logging
 import numpy as np
 from time import sleep
-from concurrent.futures import Executor
 from quantities import Quantity, cm
+from mr_freeze.resources.abstract_store import Store, Variable
+from mr_freeze.resources.application_state import LiquidHeliumLevel
 from mr_freeze.devices.cryomagnetics_lm510_adapter import CryomagneticsLM510
 from mr_freeze.exceptions import DeviceCommunicationError
 from mr_freeze.tasks.report_variable_task import ReportVariableTask
@@ -21,21 +22,33 @@ class ReportLiquidHeliumLevel(ReportVariableTask):
     title = "Liquid Helium Level"
     _minimum_time_between_samples = 0.3
 
-    def __init__(self, gauge: CryomagneticsLM510, lhe_channel: int=1) -> None:
+    def __init__(
+            self,
+            gauge: CryomagneticsLM510,
+            store: Store,
+            lhe_channel: int=1) -> None:
         """
 
         :param gauge: The gauge that reports the helium level
         :param lhe_channel: The channel on the gauge that reports the liquid
             helium level
         """
+        super(ReportLiquidHeliumLevel, self).__init__(store)
         log.debug("Initialized task to report liquid helium %s" % self)
         self.gauge = gauge
         self.lhe_channel = lhe_channel
 
-    def task(self, executor: Executor) -> Quantity:
+    @property
+    def variable_type(self) -> Variable.__class__:
         """
 
-        :param executor: The executor which will be used to run the task
+        :return: The type of variable returned by this task
+        """
+        return LiquidHeliumLevel
+
+    @property
+    def variable(self) -> Quantity:
+        """
         :return: The measured helium level. Returns NaN if it cannot be
         obtained
         """

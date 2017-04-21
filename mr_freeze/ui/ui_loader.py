@@ -18,6 +18,8 @@ from quantities import Quantity, cm, amperes
 from random import uniform
 import os
 from datetime import datetime
+from threading import Thread
+import schedule
 
 # IMPORTS For Gui setUp
 from mr_freeze.ui.user_interface import Ui_MainwindowUI
@@ -29,6 +31,7 @@ from mr_freeze.resources.application_state import LiquidNitrogenLevel
 from mr_freeze.resources.application_state import MagneticField
 from mr_freeze.resources.application_state import Current
 from mr_freeze.resources.application_state import LoggingInterval
+from mr_freeze.resources.application_state import CSVDirectory
 from mr_freeze.resources.application_state import UpperSweepCurrent
 from mr_freeze.resources.application_state import LowerSweepCurrent
 from mr_freeze.resources.application_state import PowerSupply
@@ -86,8 +89,10 @@ class Main(QtGui.QMainWindow):
         """
         Start the application
         """
-        path_to_csv_file = os.path.join(os.path.curdir, "result-%s",
-                                        datetime.now().isoformat())
+        path_to_csv_file = os.path.join(
+            self.store[CSVDirectory].value,
+            "result-%s" % datetime.now().isoformat()
+        )
         csv_log = CSVLogger(self.store, path_to_csv_file, self.store.executor)
         csv_log.start_logging()
 
@@ -278,11 +283,32 @@ def change_event(store: Store) -> None:
         store[LiquidNitrogenLevel].value = uniform(0, 100.0) * cm
         store[MagneticField].value = uniform(0, 10.0)
 
+
+class SchedulerThread(Thread):
+    """
+    runs the scheduler
+    """
+    def run(self) -> None:
+        """
+        Run the scheduler
+
+        :return:
+        """
+        while True:
+            sleep(1)
+            schedule.run_pending()
+
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
 
+    scheduler_thread = SchedulerThread(daemon=True)
+    scheduler_thread.start()
+
     with ThreadPoolExecutor(5 * cpu_count()) as executor:
         empty_store = Store(executor)
+
+        empty_store[CSVDirectory].value = os.path.abspath(os.path.curdir)
+
         window = Main(empty_store)
         window.show()
         task = executor.submit(change_event, empty_store)
