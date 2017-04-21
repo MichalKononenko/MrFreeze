@@ -59,7 +59,6 @@ class Main(QtGui.QMainWindow):
         self.setWindowIcon(QtGui.QIcon("images/config.png"))
         self.ui.start_logging_button.clicked.connect(self.start_logging)
         self.ui.stop_logging_button.clicked.connect(self.stop_logging)
-        self.ui.pushButton_2.clicked.connect(self.sweep_current)
         self.ui.log_interval_go_button.clicked.connect(self.set_log_interval)
         self.ui.set_lower_sweep_current_button.clicked.connect(
             self.set_lower_sweep_current
@@ -151,16 +150,6 @@ class Main(QtGui.QMainWindow):
             SweepPowerSupply.Direction.PAUSE, self.store[PowerSupply].value
         )
         sweep_task(self.store.executor)
-
-    def set_main_current(self):
-        """
-        Set the current to a new value
-        :return:
-        """
-        print("set_main_current")
-    
-    def sweep_current(self):
-        print("sweep_current")
     
     def set_log_interval(self):
         """
