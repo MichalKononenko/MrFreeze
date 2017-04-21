@@ -116,7 +116,7 @@ class Main(QtGui.QMainWindow):
         """
         current_text = self.ui.upper_sweep_limit.text()
         try:
-            current = float(current_text)
+            current = float(current_text) * amperes
         except ValueError:
             QtGui.QMessageBox.warning(
                 self, 'Error',
@@ -132,7 +132,7 @@ class Main(QtGui.QMainWindow):
         """
         current_text = self.ui.lower_sweep_limit.text()
         try:
-            current = float(current_text)
+            current = float(current_text) * amperes
         except ValueError:
             QtGui.QMessageBox.warning(
                 self, 'Error',
@@ -148,7 +148,7 @@ class Main(QtGui.QMainWindow):
         :return:
         """
         sweep_task = SweepPowerSupply(
-            SweepPowerSupply.Direction.PAUSE, self.store[PowerSupply]
+            SweepPowerSupply.Direction.PAUSE, self.store[PowerSupply].value
         )
         sweep_task(self.store.executor)
 

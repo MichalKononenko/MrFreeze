@@ -26,3 +26,8 @@ class SetUpperSweepCurrent(AbstractTask):
         :param executor: The executor with which this task is to be done
         """
         self.power_supply.upper_sweep_current = self.sweep_current
+
+    def __repr__(self):
+        return '<%s(sweep_current=%s, power_supply=%s)>' % (
+            self.__class__.__name__, self.sweep_current, self.power_supply
+        )

@@ -1,6 +1,6 @@
 import unittest
 import unittest.mock as mock
-from concurrent.futures import Executor
+from concurrent.futures import Executor, ThreadPoolExecutor
 from mr_freeze.tasks.abstract_task import AbstractTask
 
 
@@ -43,7 +43,13 @@ class TestCall(TestAbstractTask):
         self.task(self.executor)
 
         self.assertTrue(self.executor.submit.called)
-        self.assertEqual(
-            mock.call(self.task.task, self.executor),
-            self.executor.submit.call_args
-        )
+
+
+class TestCallWithRealExecutor(TestAbstractTask):
+    def setUp(self):
+        TestAbstractTask.setUp(self)
+        self.executor = ThreadPoolExecutor(max_workers=1)
+
+    def test_submit(self):
+        result = self.task(self.executor).result()
+        self.assertEqual(result, 1)

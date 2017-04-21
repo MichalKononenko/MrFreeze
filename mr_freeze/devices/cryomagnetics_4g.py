@@ -98,6 +98,7 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
             raise ValueError("Unable to set current. Units are not amperes")
 
         with self._requires_remote_mode():
+            log.debug("Setting upper sweep current to %f", float(new_current))
             self.query("ULIM %2.4f" % float(new_current))
 
     @property
@@ -118,6 +119,7 @@ class Cryomagnetics4G(AbstractCryomagneticsDevice):
             raise ValueError("Unable to set current. Units are not amperes")
 
         with self._requires_remote_mode():
+            log.debug("Setting lower sweep current ot %f", float(new_current))
             self.query("LLIM %2.4f" % float(new_current))
 
     @property

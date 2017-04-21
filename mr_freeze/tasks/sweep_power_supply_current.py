@@ -59,3 +59,9 @@ class SweepPowerSupply(AbstractTask):
 
     def _sweep_pause(self):
         self.power_supply.pause_sweep()
+
+    def __repr__(self):
+        return '<%s(direction=%s, power_supply=%s, fast_sweep=%s)>' % (
+            self.__class__.__name__, self.direction, self.power_supply,
+            self.fast_sweep
+        )
