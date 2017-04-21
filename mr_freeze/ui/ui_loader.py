@@ -55,7 +55,7 @@ class Main(QtGui.QMainWindow):
         self.setWindowIcon(QtGui.QIcon("images/config.png"))
         self.ui.start_logging_button.clicked.connect(self.start_logging)
         self.ui.stop_logging_button.clicked.connect(self.stop_logging)
-        self.ui.pushButton.clicked.connect(self.set_main_current)
+        self.ui.set_main_current_button.clicked.connect(self.set_main_current)
         self.ui.pushButton_2.clicked.connect(self.sweep_current)
         self.ui.log_interval_go_button.clicked.connect(self.set_log_interval)
         self.interrupt = False
