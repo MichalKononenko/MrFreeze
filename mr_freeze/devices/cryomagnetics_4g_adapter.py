@@ -12,7 +12,7 @@ from further business logic.
 """
 import numpy as np
 from typing import Optional
-from quantities import Quantity, gauss
+from quantities import Quantity, gauss, amperes
 from mr_freeze.exceptions import NoEchoedCommandFoundError
 from mr_freeze.devices.cryomagnetics_4g import Cryomagnetics4G as \
     _Cryomagnetics4G
@@ -98,3 +98,90 @@ class Cryomagnetics4G(object):
             current = self.null_value
 
         return current if current is not None else self.null_value
+
+    @property
+    def upper_sweep_current(self) -> Quantity:
+        """
+
+        :return: The upper sweep current
+        """
+        try:
+            current = self._power_supply.upper_sweep_current
+        except NoEchoedCommandFoundError:
+            current = self.null_value
+
+        return current if current is not None else self.null_value
+
+    @upper_sweep_current.setter
+    def upper_sweep_current(self, new_current: Quantity) -> None:
+        """
+
+        :param new_current: The new value of the current
+        """
+        self._assert_valid_current(new_current)
+        self._power_supply.upper_sweep_current = new_current
+
+    @property
+    def lower_sweep_current(self) -> Quantity:
+        """
+
+        :return: The lower sweep current
+        """
+        try:
+            current = self._power_supply.lower_sweep_current
+        except NoEchoedCommandFoundError:
+            current = self.null_value
+
+        return current if current is not None else self.null_value
+
+    @lower_sweep_current.setter
+    def lower_sweep_current(self, new_current: Quantity) -> None:
+        """
+
+        :param new_current: The new current
+        """
+        self._assert_valid_current(new_current)
+        self._power_supply.lower_sweep_current = new_current
+
+    def sweep_up(self, fast: bool=False) -> None:
+        """
+        Sweep the current up to the high limit
+        :param fast:
+        """
+        self._power_supply.sweep_up(fast)
+
+    def sweep_down(self, fast: bool=False) -> None:
+        """
+        Sweep the power supply down to the lower limit
+
+        :param fast: True if the sweep is to be fast
+        """
+        self._power_supply.sweep_down(fast)
+
+    def sweep_zero(self, fast: bool=False) -> None:
+        """
+        Sweep the current to zero
+
+        :param fast: True if the sweep is to be fast
+        """
+        self._power_supply.sweep_zero(fast)
+
+    def pause_sweep(self) -> None:
+        """
+        Pause sweeping
+        """
+        self._power_supply.pause_sweep()
+
+    @staticmethod
+    def _assert_valid_current(current: Quantity) -> None:
+        """
+
+        :param current: The current to check
+
+        """
+        if current.units != amperes:
+            raise ValueError("The current %s is not in amps", current)
+        if float(current) > 100:
+            raise ValueError("The current setting is too high")
+        if float(current) < -100:
+            raise ValueError("The current setting is too low")

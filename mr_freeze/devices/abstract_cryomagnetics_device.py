@@ -71,8 +71,9 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
         """
         self._querying_lock.acquire()
         self.write(cmd + self.terminator)
+        log.debug("wrote command %s", repr(cmd + self.terminator))
         response = self.read(size=self.MAXIMUM_MESSAGE_SIZE)
-        log.debug(r"received response %s", response)
+        log.debug(r"received response %s", repr(response))
         self._querying_lock.release()
 
         return self.parse_query(cmd, response)
@@ -91,7 +92,7 @@ class AbstractCryomagneticsDevice(_Instrument, metaclass=abc.ABCMeta):
             a valid command
         """
         log.debug("Query parser for <%s> received command %s and response %s",
-                  self.__repr__(), command, response)
+                  self.__repr__(), repr(command), repr(response))
 
         echoed_command = re.search(
             r"^{0}(?={1})".format(re.escape(command), '\r\n'),

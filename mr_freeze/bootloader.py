@@ -11,6 +11,7 @@ from PyQt4.QtCore import QThread
 from multiprocessing import cpu_count
 from typing import Iterable
 from concurrent.futures import ThreadPoolExecutor
+from quantities import Quantity
 from mr_freeze.devices.lakeshore_475 import Lakeshore475
 from mr_freeze.devices.cryomagnetics_lm510_adapter import CryomagneticsLM510
 from mr_freeze.devices.cryomagnetics_4g_adapter import Cryomagnetics4G
@@ -19,6 +20,11 @@ from mr_freeze.config_file_parser import ConfigFileParser
 from mr_freeze.resources.application_state import Store, CSVDirectory
 from mr_freeze.ui.ui_loader import Main as GUI
 from mr_freeze.measurement_loop import MeasurementLoop
+from mr_freeze.resources.application_state import LowerSweepCurrent
+from mr_freeze.resources.application_state import UpperSweepCurrent
+from mr_freeze.resources.application_state import PowerSupply
+from mr_freeze.tasks.set_lower_sweep_current import SetLowerSweepCurrent
+from mr_freeze.tasks.set_upper_sweep_current import SetUpperSweepCurrent
 
 log = logging.getLogger(__name__)
 
@@ -39,6 +45,8 @@ class Application(object):
         self._power_supply = self._configure_power_supply()
         self._app = QtGui.QApplication(sys.argv)
         self._gui = GUI(self._store)
+        self._add_control_listeners_to_store(self._store)
+        self._store[PowerSupply].value = self._power_supply
         self._store[CSVDirectory].value = self._csv_directory
 
     def start_loop(
@@ -148,6 +156,31 @@ class Application(object):
             return self._cli_arguments.csv_file
         except AttributeError:
             return self.config_file_parser.csv_output_directory
+
+    def _add_control_listeners_to_store(self, store: Store):
+        """
+
+        :param store: The store to which control listeners are to be added
+        :return:
+        """
+        store[LowerSweepCurrent].listeners.add(
+            self._handle_lower_sweep_current_change
+        )
+        store[UpperSweepCurrent].listeners.add(
+            self._handle_upper_sweep_current_change
+        )
+
+    def _handle_lower_sweep_current_change(
+            self, new_current: Quantity
+    ) -> None:
+        task = SetLowerSweepCurrent(new_current, self._power_supply)
+        task(self._executor)
+
+    def _handle_upper_sweep_current_change(
+            self, new_current: Quantity
+    ) -> None:
+        task = SetUpperSweepCurrent(new_current, self._power_supply)
+        task(self._executor)
 
     @staticmethod
     def _make_argument_not_found_message(argument, config_file):
