@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Dict, Optional, Any, Iterable
 from concurrent.futures import Executor
 from quantities import Quantity
-from mr_freeze.resources.abstract_store import Store, Variable
+from mr_freeze.resources.abstract_store import Store, Variable, V
 from mr_freeze.resources.application_state import LiquidHeliumLevel
 from mr_freeze.resources.application_state import LiquidNitrogenLevel
 from mr_freeze.resources.application_state import MagneticField
@@ -56,6 +56,10 @@ class CSVLogger(object):
         self.path = path_to_csv_file
         self.executor = executor
 
+        self._is_running = False
+
+        self._add_change_listener_to_store(self.store)
+
     def start_logging(self, scheduler=schedule) -> None:
         """
         Start the logger
@@ -63,12 +67,14 @@ class CSVLogger(object):
         scheduler.every(self._logging_interval).minutes.do(
             self.write_values
         ).tag(self._logger_tag)
+        self._is_running = True
 
     def stop_logging(self, scheduler=schedule) -> None:
         """
         Stop the logger
         """
         scheduler.clear(self._logger_tag)
+        self._is_running = False
 
     def write_titles(self) -> None:
         """
@@ -160,3 +166,11 @@ class CSVLogger(object):
             return str(float(value))
         else:
             return str(value)
+
+    def _add_change_listener_to_store(self, store: Store) -> None:
+        store[LoggingInterval].listeners.add(self._on_interval_change)
+
+    def _on_interval_change(self, *_, scheduler=schedule) -> None:
+        if self._is_running:
+            self.stop_logging(scheduler=scheduler)
+            self.start_logging(scheduler=scheduler)
