@@ -22,7 +22,7 @@ class CurrentDate(Variable):
     Returns the current date as a variable
     """
     def __init__(self, variable_update_executor: Executor):
-        super().__init__(datetime.now(), variable_update_executor)
+        super().__init__(datetime.now().isoformat(), variable_update_executor)
 
 
 class CSVLogger(object):

@@ -53,3 +53,29 @@ class TestCallWithRealExecutor(TestAbstractTask):
     def test_submit(self):
         result = self.task(self.executor).result()
         self.assertEqual(result, 1)
+
+    @mock.patch("mr_freeze.tasks.abstract_task.log.error")
+    def test_submit_exception_is_thrown(self, mock_error):
+        """
+        Tests that an exception is re-thrown in the executor.
+
+        :param mock_error: A mock call to the function that logs errors.
+        """
+        bad_task = self.ConcreteFaultyTask()
+
+        with self.assertRaises(ValueError):
+            bad_task(self.executor).result()
+
+        self.assertTrue(mock_error.called)
+
+    class ConcreteFaultyTask(AbstractTask):
+        """
+        Task that throws an exception
+        """
+        def task(self, executor: Executor) -> None:
+            """
+            Throw an exception
+
+            :param executor: The executor
+            """
+            raise ValueError("Kaboom")
